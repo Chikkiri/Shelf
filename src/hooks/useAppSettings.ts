@@ -1,0 +1,35 @@
+import { useEffect, useCallback } from "react";
+import { useLocalStorage } from "./useLocalStorage";
+import { AppSettings, DEFAULT_SETTINGS } from "@/types/bookmark";
+
+export function useAppSettings() {
+  const [settings, setSettings] = useLocalStorage<AppSettings>("app-settings", DEFAULT_SETTINGS);
+
+  // Apply theme mode
+  useEffect(() => {
+    const applyTheme = (isDark: boolean) => {
+      document.documentElement.classList.toggle("dark", isDark);
+    };
+
+    if (settings.themeMode === "auto") {
+      const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+      applyTheme(mediaQuery.matches);
+
+      const handler = (e: MediaQueryListEvent) => applyTheme(e.matches);
+      mediaQuery.addEventListener("change", handler);
+      return () => mediaQuery.removeEventListener("change", handler);
+    } else {
+      applyTheme(settings.themeMode === "dark");
+    }
+  }, [settings.themeMode]);
+
+  const updateSetting = useCallback(<K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
+  }, [setSettings]);
+
+  const resetSettings = useCallback(() => {
+    setSettings(DEFAULT_SETTINGS);
+  }, [setSettings]);
+
+  return { settings, updateSetting, resetSettings };
+}
