@@ -423,18 +423,20 @@ const Index = () => {
             }`}
           >
             All
+            <button
+  onClick={() => setSelectedCategory("favorite")}
+  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+    selectedCategory === "favorite"
+      ? "bg-primary text-primary-foreground"
+      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+  }`}
+>
+  Favorite ({favoriteBookmarks.length})
+</button>
+
              ({bookmarks.filter((b) => !b.private).length})
           </button>
-          <button
-            onClick={() => setSelectedCategory("favorite")}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-            selectedCategory === "favorite"
-            ? "bg-primary text-primary-foreground"
-            : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-            }`}
-          >
-            Favorite ({favoriteBookmarks.length})
-            </button>
+          
           {categories.map((cat) => (
             <button
               key={cat.id}
