@@ -22,6 +22,7 @@ interface PrivateSpaceProps {
 }
 
 type SortOption = "name" | "rating" | "recent";
+type TypeFilter = "all" | "website" | "app";
 
 export function PrivateSpace({
   bookmarks,
@@ -34,6 +35,7 @@ export function PrivateSpace({
 }: PrivateSpaceProps) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<TypeFilter>("all");
   const [sortBy, setSortBy] = useState<SortOption>("recent");
 
   // Apply neutral Private Space theme on mount, restore on unmount
@@ -80,6 +82,11 @@ export function PrivateSpace({
       });
     }
 
+        // Type filter
+    if (selectedType !== "all") {
+      result = result.filter((b) => b.type === selectedType);
+    }
+
     switch (sortBy) {
       case "name":
         result.sort((a, b) => a.name.localeCompare(b.name));
@@ -100,8 +107,8 @@ export function PrivateSpace({
     });
 
     return result;
-  }, [privateBookmarks, search, selectedCategory, sortBy]);
-
+  }, [privateBookmarks, search, selectedCategory, selectedType, sortBy]);
+  
   // Grid classes based on layout settings
   const getGridClasses = () => {
     const gapClass = settings.cardSize === "small" ? "gap-3" : settings.cardSize === "large" ? "gap-5" : "gap-4";
@@ -186,7 +193,7 @@ export function PrivateSpace({
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search private items..."
+              placeholder="Search"
               className="pl-9 private-space-input"
             />
           </div>
@@ -209,6 +216,40 @@ export function PrivateSpace({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+                  </div>
+
+        {/* Type filter */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          <button
+            onClick={() => setSelectedType("all")}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              selectedType === "all"
+                ? "private-space-chip-active"
+                : "private-space-chip"
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setSelectedType("website")}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              selectedType === "website"
+                ? "private-space-chip-active"
+                : "private-space-chip"
+            }`}
+          >
+            Website
+          </button>
+          <button
+            onClick={() => setSelectedType("app")}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              selectedType === "app"
+                ? "private-space-chip-active"
+                : "private-space-chip"
+            }`}
+          >
+            Application
+          </button>
         </div>
 
         {/* Category filter */}

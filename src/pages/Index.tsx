@@ -28,6 +28,7 @@ const DEFAULT_CATEGORIES: Category[] = [
 ];
 
 type SortOption = "name" | "rating" | "recent";
+type TypeFilter = "all" | "website" | "app";
 
 const Index = () => {
   const [bookmarks, setBookmarks] = useLocalStorage<Bookmark[]>("bookmarks", []);
@@ -37,6 +38,7 @@ const Index = () => {
   
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedType, setSelectedType] = useState<TypeFilter>("all");  
   const [sortBy, setSortBy] = useState<SortOption>("recent");
   
   const [bookmarkDialogOpen, setBookmarkDialogOpen] = useState(false);
@@ -80,6 +82,11 @@ const Index = () => {
       });
     }
 
+        // Type filter
+    if (selectedType !== "all") {
+      result = result.filter((b) => b.type === selectedType);
+    }
+
     switch (sortBy) {
       case "name":
         result.sort((a, b) => a.name.localeCompare(b.name));
@@ -100,7 +107,7 @@ const Index = () => {
     });
 
     return result;
-  }, [bookmarks, search, selectedCategory, sortBy]);
+  }, [bookmarks, search, selectedCategory, selectedType, sortBy]);
 
   const handleAddBookmark = (data: Omit<Bookmark, "id" | "createdAt">) => {
     const newBookmark: Bookmark = {
@@ -343,7 +350,7 @@ const Index = () => {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search items..."
+              placeholder="Search"
               className="pl-9"
             />
           </div>
@@ -366,6 +373,40 @@ const Index = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
+                  </div>
+
+        {/* Type filter */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          <button
+            onClick={() => setSelectedType("all")}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              selectedType === "all"
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            }`}
+          >
+            All
+          </button>
+          <button
+            onClick={() => setSelectedType("website")}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              selectedType === "website"
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            }`}
+          >
+            Website
+          </button>
+          <button
+            onClick={() => setSelectedType("app")}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+              selectedType === "app"
+                ? "bg-primary text-primary-foreground"
+                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+            }`}
+          >
+            Application
+          </button>
         </div>
 
         {/* Category filter */}
