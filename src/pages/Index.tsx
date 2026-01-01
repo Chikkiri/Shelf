@@ -437,11 +437,11 @@ const Index = () => {
               <Layers className="w-8 h-8 text-muted-foreground" />
             </div>
             <h2 className="text-lg font-semibold text-foreground mb-2">
-              {bookmarks.filter((b) => !b.private).length === 0 ? "No items yet" : "No matches found"}
+              {bookmarks.filter((b) => !b.private).length === 0 ? "Empty" : "No matches found"}
             </h2>
             <p className="text-muted-foreground mb-4">
               {bookmarks.filter((b) => !b.private).length === 0
-                ? "Add your first item to get started"
+                ? "Add one now"
                 : "Try adjusting your search or filters"}
             </p>
           </div>

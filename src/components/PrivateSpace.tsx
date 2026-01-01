@@ -262,11 +262,11 @@ export function PrivateSpace({
               <Lock className="w-8 h-8 private-space-muted" />
             </div>
             <h2 className="text-lg font-semibold private-space-text mb-2">
-              {privateBookmarks.length === 0 ? "No private items" : "No matches found"}
+              {privateBookmarks.length === 0 ? "Empty" : "No matches found"}
             </h2>
             <p className="private-space-muted mb-4">
               {privateBookmarks.length === 0
-                ? "Mark items as private to see them here"
+                ? "Mark as private to see them here"
                 : "Try adjusting your search or filters"}
             </p>
           </div>
