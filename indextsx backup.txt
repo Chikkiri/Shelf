@@ -21,6 +21,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+const [accent, setAccent] = useLocalStorage(
+  "shelf-accent",
+  "accent-blue"
+);
+
 const DEFAULT_CATEGORIES: Category[] = [
   { id: "1", name: "Development", color: "blue" },
   { id: "2", name: "Design", color: "purple" },
@@ -47,11 +52,6 @@ const Index = () => {
   const [editingBookmark, setEditingBookmark] = useState<Bookmark | null>(null);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
   const [showPrivateSpace, setShowPrivateSpace] = useState(false);
-
-  const [accent, setAccent] = useLocalStorage(
-  "shelf-accent",
-  "accent-blue"
-);
 
   // Get non-private favorite items
   const favoriteBookmarks = useMemo(() => {
@@ -298,10 +298,7 @@ const Index = () => {
   }
 
   return (
-    <div className={cn(
-    "min-h-screen bg-background pb-24 overflow-x-hidden w-full max-w-full",
-    accent>)}>
-
+    <div className="min-h-screen bg-background pb-24 overflow-x-hidden w-full max-w-full">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="container py-4">
@@ -438,6 +435,16 @@ const Index = () => {
             </button>
           ))}
         </div>
+
+        const [accent, setAccent] = useLocalStorage(
+          "shelf-accent",
+          "accent-blue"
+        );
+        
+        <div className={cn("h-full", accent)}>
+        {/* Main Space */}
+        </div>
+
 
         {/* Bookmarks grid */}
         {filteredBookmarks.length === 0 ? (
