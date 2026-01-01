@@ -300,7 +300,7 @@ const Index = () => {
   return (
     <div className={cn(
     "min-h-screen bg-background pb-24 overflow-x-hidden w-full max-w-full",
-    accent>)}>
+    accent)}>
 
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
