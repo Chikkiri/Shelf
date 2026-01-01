@@ -47,6 +47,10 @@ const Index = () => {
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
   const [showPrivateSpace, setShowPrivateSpace] = useState(false);
 
+  // Get non-private favorite items
+  const favoriteBookmarks = useMemo(() => {
+    return bookmarks.filter((b) => b.favorite && !b.private);
+  }, [bookmarks]);
 
   // Count non-private bookmarks per category
   const bookmarkCounts = useMemo(() => {
@@ -408,7 +412,7 @@ const Index = () => {
       : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
   }`}
 >
-  
+  Favorite ({favoriteBookmarks.length})
 </button>
           
           {categories.map((cat) => (
