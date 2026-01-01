@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, ArrowUpDown, Lock, ArrowLeft, Heart } from "lucide-react";
+import { Search, ArrowUpDown, Lock, ArrowLeft } from "lucide-react";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
 import { BookmarkCard } from "@/components/BookmarkCard";
 import { Button } from "@/components/ui/button";
@@ -51,10 +51,6 @@ export function PrivateSpace({
     return bookmarks.filter((b) => b.private);
   }, [bookmarks]);
 
-  // Get favorite private items
-  const favoritePrivateBookmarks = useMemo(() => {
-    return privateBookmarks.filter((b) => b.favorite);
-  }, [privateBookmarks]);
 
   // Count bookmarks per category (private only)
   const bookmarkCounts = useMemo(() => {
@@ -163,28 +159,6 @@ export function PrivateSpace({
       </header>
 
       <main className="container py-6">
-        {/* Favorites Section */}
-        {favoritePrivateBookmarks.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <Heart className="w-5 h-5 private-space-heart" />
-              <h2 className="text-lg font-semibold private-space-text">Quick Access</h2>
-            </div>
-            <div className={gridClasses}>
-              {favoritePrivateBookmarks.map((bookmark) => (
-                <BookmarkCard
-                  key={`fav-${bookmark.id}`}
-                  bookmark={bookmark}
-                  categories={categories}
-                  settings={settings}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  onToggleFavorite={onToggleFavorite}
-                />
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">

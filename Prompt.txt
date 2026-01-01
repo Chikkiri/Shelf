@@ -1,0 +1,28 @@
+I want to remove the “Quick Access” feature completely, but KEEP the pin functionality.
+
+Required behavior:
+- Do NOT render any “Quick Access”, “Pinned”, or “Favorites” top sections.
+- The UI must have only ONE bookmark list.
+- Keep the pin feature enabled.
+
+Pin logic:
+- Pinned items should appear at the TOP of the CURRENTLY SELECTED CATEGORY only.
+- Do NOT show pinned items outside the active category.
+- Do NOT create a separate pinned section.
+- Pinned items must remain part of the normal list, just ordered first.
+
+Favorite logic:
+- Favorites must NOT affect ordering or layout.
+- Favorites are used ONLY as a filter inside the “Favorite” category tab.
+
+Sorting order inside a category:
+1. Pinned items
+2. Unpinned items
+(No other prioritization.)
+
+Please report:
+- Which file(s) were modified
+- What logic was removed (Quick Access)
+- Where the pin ordering logic is implemented
+
+Do NOT introduce new UI sections, categories, or components.

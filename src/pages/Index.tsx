@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Search, ArrowUpDown, Layers, Heart, Lock } from "lucide-react";
+import { Search, ArrowUpDown, Layers, Lock } from "lucide-react";
 import { Bookmark, Category, DEFAULT_SETTINGS } from "@/types/bookmark";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useAppSettings } from "@/hooks/useAppSettings";
@@ -47,10 +47,6 @@ const Index = () => {
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
   const [showPrivateSpace, setShowPrivateSpace] = useState(false);
 
-  // Get non-private favorite items
-  const favoriteBookmarks = useMemo(() => {
-    return bookmarks.filter((b) => b.favorite && !b.private);
-  }, [bookmarks]);
 
   // Count non-private bookmarks per category
   const bookmarkCounts = useMemo(() => {
@@ -323,28 +319,6 @@ const Index = () => {
       </header>
 
       <main className="container py-6">
-        {/* Favorites Section */}
-        {favoriteBookmarks.length > 0 && (
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-4">
-              <Heart className="w-5 h-5 text-destructive fill-destructive" />
-              <h2 className="text-lg font-semibold text-foreground">Quick Access</h2>
-            </div>
-            <div className={gridClasses}>
-              {favoriteBookmarks.map((bookmark) => (
-                <BookmarkCard
-                  key={`fav-${bookmark.id}`}
-                  bookmark={bookmark}
-                  categories={categories}
-                  settings={settings}
-                  onEdit={openEditDialog}
-                  onDelete={handleDeleteBookmark}
-                  onToggleFavorite={handleToggleFavorite}
-                />
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -434,7 +408,7 @@ const Index = () => {
       : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
   }`}
 >
-  Favorite ({favoriteBookmarks.length})
+  
 </button>
           
           {categories.map((cat) => (
