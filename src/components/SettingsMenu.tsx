@@ -6,6 +6,8 @@ import { PinDialog } from "@/components/PinDialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Palette } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
@@ -33,6 +35,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
+
+const accents = [
+  { id: "accent-blue", color: "bg-blue-500" },
+  { id: "accent-green", color: "bg-green-500" },
+  { id: "accent-purple", color: "bg-purple-500" },
+  { id: "accent-orange", color: "bg-orange-500" },
+  { id: "accent-pink", color: "bg-pink-500" },
+];
 
 interface SettingsMenuProps {
   bookmarks: Bookmark[];
@@ -191,42 +201,34 @@ export function SettingsMenu({
 
           {/* Theme Section */}
 <div className="space-y-4">
+  {/* Appearance Section */}
+<div className="space-y-4">
   <h3 className="text-sm font-medium flex items-center gap-2">
-    <Sun className="h-4 w-4" />
-    Theme
+    <Palette className="h-4 w-4" />
+    Appearance
   </h3>
 
   <div className="space-y-3">
-    <div className="flex items-center justify-between">
-      <Label>Theme Mode</Label>
-      <Select
-        value={settings.themeMode}
-        onValueChange={(v) => onUpdateSetting("themeMode", v as ThemeMode)}
-      >
-        <SelectTrigger className="w-32">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="auto">
-            <span className="flex items-center gap-2">
-              <Monitor className="h-4 w-4" /> Auto
-            </span>
-          </SelectItem>
-          <SelectItem value="light">
-            <span className="flex items-center gap-2">
-              <Sun className="h-4 w-4" /> Light
-            </span>
-          </SelectItem>
-          <SelectItem value="dark">
-            <span className="flex items-center gap-2">
-              <Moon className="h-4 w-4" /> Dark
-            </span>
-          </SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
+    <Label>Accent Color</Label>
 
-    {/* 🔽 ADD THIS BLOCK */}
+    <div className="flex gap-2">
+      {accents.map((a) => (
+        <button
+          key={a.id}
+          onClick={() => onChangeAccent(a.id)}
+          className={cn(
+            "h-8 w-8 rounded-full border",
+            a.color,
+            accent === a.id && "ring-2 ring-accent"
+          )}
+        />
+      ))}
+    </div>
+  </div>
+</div>
+
+
+    
     <div className="flex items-center justify-between">
       <Label>Accent Color</Label>
       <div className="flex gap-2">
@@ -473,7 +475,7 @@ export function SettingsMenu({
               </AlertDialog>
             </div>
           </div>
-        </div>
+        
 
         <PinDialog
           open={pinDialogOpen}
