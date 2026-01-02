@@ -45,7 +45,9 @@ interface SettingsMenuProps {
   onUpdateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void;
   onResetSettings: () => void;
   onClearData: () => void;
+  
 }
+
 
 export function SettingsMenu({
   bookmarks,

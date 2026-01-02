@@ -298,6 +298,8 @@ const Index = () => {
   }
 
   return (
+    
+
     <div className={cn(
     "min-h-screen bg-background pb-24 overflow-x-hidden w-full max-w-full",
     accent)}>
@@ -326,6 +328,8 @@ const Index = () => {
               onUpdateSetting={updateSetting}
               onResetSettings={resetSettings}
               onClearData={handleClearData}
+               accent={accent}
+              onChangeAccent={setAccent}
             />
           </div>
         </div>
@@ -437,6 +441,10 @@ const Index = () => {
               {cat.name} ({bookmarkCounts[cat.id] || 0})
             </button>
           ))}
+        </div>
+
+        <div className={cn("h-full", accent)}>
+        {/* Main Space */}
         </div>
 
         {/* Bookmarks grid */}
