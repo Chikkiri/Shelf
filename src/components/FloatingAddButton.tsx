@@ -10,7 +10,7 @@ export function FloatingAddButton({ onClick }: FloatingAddButtonProps) {
     <Button
       onClick={onClick}
       size="lg"
-      className="fixed bottom-6 right-6 h-14 w-14 rounded-full elevation-3 hover:elevation-4 z-50"
+      className="fixed bottom-6 right-6 h-14 w-14 rounded-full elevation-3 hover:elevation-4 z-50 bg-accent-custom hover:bg-accent-custom/90 text-white"
     >
       <Plus className="h-6 w-6" />
     </Button>

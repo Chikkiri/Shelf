@@ -39,6 +39,8 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 10%;
 
+    /*Accent color stored as HEX, applied via JS*/
+    --accent-hex: #3b82f6;
     --primary: 220 90% 56%;
     --primary-foreground: 0 0% 100%;
 
@@ -88,6 +90,8 @@
     --popover: 224 71% 6%;
     --popover-foreground: 213 31% 91%;
 
+    /* Accent color stored as HEX, applied via JS */
+    --accent-hex: #3b82f6;
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
@@ -152,6 +156,19 @@
   
   .elevation-3 {
     box-shadow: var(--elevation-3);
+    }
+
+  /* Accent color utilities using HEX variable */
+  .bg-accent-custom {
+    background-color: var(--accent-hex);
+  }
+  
+  .text-accent-custom {
+    color: var(--accent-hex);
+  }
+  
+  .border-accent-custom {
+    border-color: var(--accent-hex);
   }
 }
 

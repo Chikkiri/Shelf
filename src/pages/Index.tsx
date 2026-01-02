@@ -311,10 +311,10 @@ const Index = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={handlePrivateSpaceClick}
-                className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center elevation-2 hover:elevation-3 transition-all"
-                title="Private Space"
+                className="w-10 h-10 rounded-xl bg-accent-custom flex items-center justify-center elevation-2 hover:elevation-3 transition-all"               
+               title="Private Space"
               >
-                <Layers className="w-5 h-5 text-primary-foreground" />
+                <Layers className="w-5 h-5 text-white" />
               </button>
               <h1 className="text-xl font-semibold text-foreground hidden sm:block">Shelf</h1>
             </div>
@@ -328,8 +328,7 @@ const Index = () => {
               onUpdateSetting={updateSetting}
               onResetSettings={resetSettings}
               onClearData={handleClearData}
-               accent={accent}
-              onChangeAccent={setAccent}
+              
             />
           </div>
         </div>
@@ -375,7 +374,7 @@ const Index = () => {
             onClick={() => setSelectedType("all")}
             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
               selectedType === "all"
-                ? "bg-primary text-primary-foreground"
+                ? "bg-accent-custom text-white"
                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
             }`}
           >
@@ -385,7 +384,7 @@ const Index = () => {
             onClick={() => setSelectedType("website")}
             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
               selectedType === "website"
-                ? "bg-primary text-primary-foreground"
+                ? "bg-accent-custom text-white"
                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
             }`}
           >
@@ -409,7 +408,7 @@ const Index = () => {
             onClick={() => setSelectedCategory(null)}
             className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
               selectedCategory === null
-                ? "bg-primary text-primary-foreground"
+                ? "bg-accent-custom text-white"
                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
             }`}
           >
@@ -421,7 +420,7 @@ const Index = () => {
   onClick={() => setSelectedCategory("favorite")}
   className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
     selectedCategory === "favorite"
-      ? "bg-primary text-primary-foreground"
+      ? "bg-accent-custom text-white"
       : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
   }`}
 >

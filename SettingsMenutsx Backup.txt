@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { Settings, Moon, Sun, Monitor, Download, Upload, FolderOpen, LayoutGrid, Type, RotateCcw, Trash2, List, Grid3X3, Lock, KeyRound, Palette } from "lucide-react";
+import { Settings, Moon, Sun, Monitor, Download, Upload, FolderOpen, LayoutGrid, Type, RotateCcw, Trash2, List, Grid3X3, Lock, KeyRound } from "lucide-react";
 import { Bookmark, Category, AppSettings, ThemeMode, CardSize, LayoutView, GridColumns } from "@/types/bookmark";
 import { usePrivateSpace } from "@/contexts/PrivateSpaceContext";
 import { PinDialog } from "@/components/PinDialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { Palette } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Sheet,
   SheetContent,
@@ -34,27 +36,42 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
+const accents = [
+  { id: "accent-blue", color: "bg-blue-500" },
+  { id: "accent-green", color: "bg-green-500" },
+  { id: "accent-purple", color: "bg-purple-500" },
+  { id: "accent-orange", color: "bg-orange-500" },
+  { id: "accent-pink", color: "bg-pink-500" },
+];
+
 interface SettingsMenuProps {
   bookmarks: Bookmark[];
   categories: Category[];
   settings: AppSettings;
+  accent: string;
+  onChangeAccent: (accent: string) => void;
   onImport: (bookmarks: Bookmark[], categories: Category[]) => void;
   onOpenCategoryManager: () => void;
   onUpdateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void;
   onResetSettings: () => void;
   onClearData: () => void;
+  
 }
+
 
 export function SettingsMenu({
   bookmarks,
   categories,
   settings,
+  accent,
+  onChangeAccent,
   onImport,
   onOpenCategoryManager,
   onUpdateSetting,
   onResetSettings,
   onClearData,
 }: SettingsMenuProps) {
+
   const [open, setOpen] = useState(false);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
   const { hasPin, changePin, setPin } = usePrivateSpace();
@@ -144,11 +161,11 @@ export function SettingsMenu({
         </SheetHeader>
         
         <div className="space-y-6 py-6 overflow-y-auto flex-1 -mx-6 px-6">
-          {/* Appearance Section */}
+          {/* Theme Section */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium flex items-center gap-2">
-              <Palette className="h-4 w-4" />
-              Appearance
+              <Sun className="h-4 w-4" />
+              Theme
             </h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
@@ -179,23 +196,64 @@ export function SettingsMenu({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex items-center justify-between">
-                <Label>Accent Color</Label>
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-8 h-8 rounded-lg border border-border"
-                    style={{ backgroundColor: settings.accentColor || "#3b82f6" }}
-                  />
-                  <input
-                    type="color"
-                     value={settings.accentColor || "#3b82f6"}
-                    onChange={(e) => onUpdateSetting("accentColor", e.target.value)}
-                    className="w-10 h-8 cursor-pointer border-0 p-0 bg-transparent"
-                  />
-                </div>
-              </div>
             </div>
           </div>
+
+          {/* Theme Section */}
+<div className="space-y-4">
+  {/* Appearance Section */}
+<div className="space-y-4">
+  <h3 className="text-sm font-medium flex items-center gap-2">
+    <Palette className="h-4 w-4" />
+    Appearance
+  </h3>
+
+  <div className="space-y-3">
+    <Label>Accent Color</Label>
+
+    <div className="flex gap-2">
+      {accents.map((a) => (
+        <button
+          key={a.id}
+          onClick={() => onChangeAccent(a.id)}
+          className={cn(
+            "h-8 w-8 rounded-full border",
+            a.color,
+            accent === a.id && "ring-2 ring-accent"
+          )}
+        />
+      ))}
+    </div>
+  </div>
+</div>
+
+
+    
+    <div className="flex items-center justify-between">
+      <Label>Accent Color</Label>
+      <div className="flex gap-2">
+        {[
+          "accent-blue",
+          "accent-green",
+          "accent-purple",
+          "accent-orange",
+          "accent-pink",
+        ].map((a) => (
+          <button
+            key={a}
+            onClick={() => onChangeAccent(a)}
+            className={[
+              "h-5 w-5 rounded-full border transition-all",
+              a,
+              accent === a ? "ring-2 ring-accent" : "",
+            ].join(" ")}
+          />
+        ))}
+      </div>
+    </div>
+  </div>
+</div>
+
 
           <Separator />
 
@@ -417,7 +475,7 @@ export function SettingsMenu({
               </AlertDialog>
             </div>
           </div>
-        </div>
+        
 
         <PinDialog
           open={pinDialogOpen}
