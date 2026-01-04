@@ -412,46 +412,6 @@ const Index = () => {
           totalCount={bookmarks.filter((b) => !b.private).length}
         />
 
-        {/* Category filter */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          <button
-            onClick={() => setSelectedCategory(null)}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-              selectedCategory === null
-                ? "bg-accent-custom text-white"
-                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-            }`}
-          >
-            All
-          
-             ({bookmarks.filter((b) => !b.private).length})
-          </button>
-          <button
-  onClick={() => setSelectedCategory("favorite")}
-  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-    selectedCategory === "favorite"
-      ? "bg-accent-custom text-white"
-      : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-  }`}
->
-  Favorite ({favoriteBookmarks.length})
-</button>
-          
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                selectedCategory === cat.id
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-              }`}
-            >
-              {cat.name} ({bookmarkCounts[cat.id] || 0})
-            </button>
-          ))}
-        </div>
-
         <div className={cn("h-full", accent)}>
         {/* Main Space */}
         </div>
