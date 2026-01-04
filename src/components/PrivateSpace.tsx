@@ -193,6 +193,18 @@ export function PrivateSpace({
           </DropdownMenu>
                   </div>
 
+{/* Category Hover Board - Top position */}
+        {settings.hoverBoardPosition === "top" && (
+          <CategoryHoverBoard
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            bookmarkCounts={bookmarkCounts}
+            totalCount={privateBookmarks.length}
+            isPrivateSpace={true}
+          />
+        )}
+
         {/* Type filter - Top Bar */}
         <div className="flex justify-center gap-8 mb-6">
           <button
@@ -227,15 +239,17 @@ export function PrivateSpace({
           </button>
         </div>
 
-        {/* Category Hover Board */}
-        <CategoryHoverBoard
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-          bookmarkCounts={bookmarkCounts}
-          totalCount={privateBookmarks.length}
-          isPrivateSpace={true}
-        />
+        {/* Category Hover Board - Bottom position (default) */}
+        {settings.hoverBoardPosition !== "top" && (
+          <CategoryHoverBoard
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            bookmarkCounts={bookmarkCounts}
+            totalCount={privateBookmarks.length}
+            isPrivateSpace={true}
+          />
+        )}
         
         {/* Category filter */}
         {categoriesWithPrivateItems.length > 0 && (

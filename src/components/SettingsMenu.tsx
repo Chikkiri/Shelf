@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Settings, Moon, Sun, Monitor, Download, Upload, FolderOpen, LayoutGrid, Type, RotateCcw, Trash2, List, Grid3X3, Lock, KeyRound, Palette } from "lucide-react";
-import { Bookmark, Category, AppSettings, ThemeMode, CardSize, LayoutView, GridColumns } from "@/types/bookmark";
+import { Settings, Moon, Sun, Monitor, Download, Upload, FolderOpen, LayoutGrid, Type, RotateCcw, Trash2, List, Grid3X3, Lock, KeyRound, Palette, ArrowUp, ArrowDown } from "lucide-react";
+import { Bookmark, Category, AppSettings, ThemeMode, CardSize, LayoutView, GridColumns, HoverBoardPosition } from "@/types/bookmark";
 import { usePrivateSpace } from "@/contexts/PrivateSpaceContext";
 import { PinDialog } from "@/components/PinDialog";
 import { Button } from "@/components/ui/button";
@@ -262,6 +262,30 @@ export function SettingsMenu({
                     <SelectItem value="small">Small</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
                     <SelectItem value="large">Large</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <Label>Category Board Position</Label>
+                <Select
+                  value={settings.hoverBoardPosition || "bottom"}
+                  onValueChange={(v) => onUpdateSetting("hoverBoardPosition", v as HoverBoardPosition)}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="top">
+                      <span className="flex items-center gap-2">
+                        <ArrowUp className="h-4 w-4" /> Top
+                      </span>
+                    </SelectItem>
+                    <SelectItem value="bottom">
+                      <span className="flex items-center gap-2">
+                        <ArrowDown className="h-4 w-4" /> Bottom
+                      </span>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>

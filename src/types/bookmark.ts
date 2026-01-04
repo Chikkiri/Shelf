@@ -27,6 +27,7 @@ export type ThemeMode = "light" | "dark" | "auto";
 export type CardSize = "small" | "medium" | "large";
 export type LayoutView = "list" | "grid";
 export type GridColumns = "2" | "3" | "auto";
+export type HoverBoardPosition = "top" | "bottom";
 
 export interface AppSettings {
   themeMode: ThemeMode;
@@ -35,6 +36,7 @@ export interface AppSettings {
   showNotes: boolean;
   layoutView: LayoutView;
   gridColumns: GridColumns;
+  hoverBoardPosition: HoverBoardPosition;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -44,4 +46,5 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showNotes: true,
   layoutView: "grid",
   gridColumns: "auto",
+  hoverBoardPosition: "bottom",
 };

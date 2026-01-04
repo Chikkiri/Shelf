@@ -369,6 +369,17 @@ const Index = () => {
           </DropdownMenu>
                   </div>
 
+                          {/* Category Hover Board - Top position */}
+        {settings.hoverBoardPosition === "top" && (
+          <CategoryHoverBoard
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            bookmarkCounts={bookmarkCounts}
+            totalCount={bookmarks.filter((b) => !b.private).length}
+          />
+        )}
+
         {/* Type filter - Top Bar */}
         <div className="flex justify-center gap-8 mb-6">
           <button
@@ -403,14 +414,16 @@ const Index = () => {
           </button>
         </div>
 
-        {/* Category Hover Board */}
-        <CategoryHoverBoard
-          categories={categories}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-          bookmarkCounts={bookmarkCounts}
-          totalCount={bookmarks.filter((b) => !b.private).length}
-        />
+       {/* Category Hover Board - Bottom position (default) */}
+        {settings.hoverBoardPosition !== "top" && (
+          <CategoryHoverBoard
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            bookmarkCounts={bookmarkCounts}
+            totalCount={bookmarks.filter((b) => !b.private).length}
+          />
+        )}
 
         <div className={cn("h-full", accent)}>
         {/* Main Space */}
