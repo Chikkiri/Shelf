@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Search, ArrowUpDown, Lock, ArrowLeft } from "lucide-react";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
 import { BookmarkCard } from "@/components/BookmarkCard";
+import { CategoryHoverBoard } from "@/components/CategoryHoverBoard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -192,40 +193,50 @@ export function PrivateSpace({
           </DropdownMenu>
                   </div>
 
-        {/* Type filter */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        {/* Type filter - Top Bar */}
+        <div className="flex justify-center gap-8 mb-6">
           <button
             onClick={() => setSelectedType("all")}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            className={`text-sm font-medium transition-colors ${
               selectedType === "all"
-                ? "private-space-chip-active"
-                : "private-space-chip"
+                ? "private-space-text-accent"
+                : "private-space-muted hover:private-space-text"
             }`}
           >
             All
           </button>
           <button
             onClick={() => setSelectedType("website")}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            className={`text-sm font-medium transition-colors ${
               selectedType === "website"
-                ? "private-space-chip-active"
-                : "private-space-chip"
+                ? "private-space-text-accent"
+                : "private-space-muted hover:private-space-text"
             }`}
           >
             Website
           </button>
           <button
             onClick={() => setSelectedType("app")}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            className={`text-sm font-medium transition-colors ${
               selectedType === "app"
-                ? "private-space-chip-active"
-                : "private-space-chip"
+                ? "private-space-text-accent"
+                : "private-space-muted hover:private-space-text"
             }`}
           >
             Application
           </button>
         </div>
 
+        {/* Category Hover Board */}
+        <CategoryHoverBoard
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+          bookmarkCounts={bookmarkCounts}
+          totalCount={privateBookmarks.length}
+          isPrivateSpace={true}
+        />
+        
         {/* Category filter */}
         {categoriesWithPrivateItems.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-6">

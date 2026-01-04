@@ -240,6 +240,15 @@
   background-color: hsl(0 0% 90%);
 }
 
+[data-private-space="true"] .private-space-hover-board {
+  background-color: hsl(0 0% 88%);
+}
+
+[data-private-space="true"] .private-space-text-accent {
+  color: hsl(0 0% 25%);
+  font-weight: 600;
+}
+
 /* Private Space neutral theme - Dark mode */
 .dark[data-private-space="true"] .private-space-bg,
 [data-private-space="true"].dark .private-space-bg {
@@ -321,4 +330,15 @@
 .dark[data-private-space="true"] .private-space-empty-icon,
 [data-private-space="true"].dark .private-space-empty-icon {
   background-color: hsl(0 0% 15%);
+}
+
+.dark[data-private-space="true"] .private-space-hover-board,
+[data-private-space="true"].dark .private-space-hover-board {
+  background-color: hsl(0 0% 12%);
+}
+
+.dark[data-private-space="true"] .private-space-text-accent,
+[data-private-space="true"].dark .private-space-text-accent {
+  color: hsl(0 0% 85%);
+  font-weight: 600;
 }

@@ -1,10 +1,11 @@
 import { useState, useMemo } from "react";
-import { Search, ArrowUpDown, Layers, Lock } from "lucide-react";
+import { Search, ArrowUpDown, Layers } from "lucide-react";
 import { Bookmark, Category, DEFAULT_SETTINGS } from "@/types/bookmark";
 import { cn } from "@/lib/utils";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { usePrivateSpace } from "@/contexts/PrivateSpaceContext";
+import { CategoryHoverBoard } from "@/components/CategoryHoverBoard";
 import { BookmarkCard } from "@/components/BookmarkCard";
 import { BookmarkDialog } from "@/components/BookmarkDialog";
 import { CategoryManager } from "@/components/CategoryManager";
@@ -368,39 +369,48 @@ const Index = () => {
           </DropdownMenu>
                   </div>
 
-        {/* Type filter */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        {/* Type filter - Top Bar */}
+        <div className="flex justify-center gap-8 mb-6">
           <button
             onClick={() => setSelectedType("all")}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            className={`text-sm font-medium transition-colors ${
               selectedType === "all"
-                ? "bg-accent-custom text-white"
-                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                ? "text-accent-custom"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             All
           </button>
           <button
             onClick={() => setSelectedType("website")}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            className={`text-sm font-medium transition-colors ${
               selectedType === "website"
-                ? "bg-accent-custom text-white"
-                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                ? "text-accent-custom"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Website
           </button>
           <button
             onClick={() => setSelectedType("app")}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
+            className={`text-sm font-medium transition-colors ${
               selectedType === "app"
-                ? "bg-primary text-primary-foreground"
-                : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                ? "text-accent-custom"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Application
           </button>
         </div>
+
+        {/* Category Hover Board */}
+        <CategoryHoverBoard
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
+          bookmarkCounts={bookmarkCounts}
+          totalCount={bookmarks.filter((b) => !b.private).length}
+        />
 
         {/* Category filter */}
         <div className="flex flex-wrap gap-2 mb-6">
