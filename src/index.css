@@ -6,6 +6,21 @@
 
 @layer base {
   :root {
+
+    --accent: 59 130 246; /* default (blue) */
+}
+
+[data-accent="grey"] {
+  --accent: 156 163 175;
+}
+
+[data-accent="green"] {
+  --accent: 34 197 94;
+}
+
+[data-accent="red"] {
+  --accent: 239 68 68;
+
       /* ===== Accent presets (Main Space only) ===== */
   .accent-blue {
     --accent: 217 91% 60%;

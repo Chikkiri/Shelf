@@ -1,0 +1,3 @@
+accent: {
+          DEFAULT: "hsl(var(--accent))",
+          foreground: "hsl(var(--accent-foreground))", -> tailwind.config.ts Ln47

@@ -2,6 +2,7 @@ import { ExternalLink, Globe, Heart, Pencil, Pin, Play, Share2, Trash2 } from "l
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
 import { StarRating } from "./StarRating";
+import { RatingDisplay } from "./RatingDisplay";
 import { CategoryBadge } from "./CategoryBadge";
 import { Button } from "@/components/ui/button";
 import {
@@ -170,7 +171,7 @@ export function BookmarkCard({
       )}
 
       <div className="flex items-center justify-between mt-auto pt-3 border-t border-border/30">
-        <StarRating rating={bookmark.rating} readonly size="sm" />
+        <RatingDisplay rating={bookmark.rating} size="sm" />
         
         {showDropdown ? (
           <DropdownMenu>
