@@ -110,12 +110,14 @@ const Index = () => {
     }
 
     // Always sort pinned items to top
+    if (selectedCategory !== "favorite") {
     result.sort((a, b) => {
       if (a.pinned && !b.pinned) return -1;
       if (!a.pinned && b.pinned) return 1;
       return 0;
     });
-
+  }
+  
     return result;
   }, [bookmarks, search, selectedCategory, selectedType, sortBy]);
 

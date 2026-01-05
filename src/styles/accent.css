@@ -1,0 +1,38 @@
+/* 
+ * Accent Color System
+ * All accent color customization utilities are centralized here.
+ * The --accent-hex variable is dynamically set via useAppSettings hook.
+ */
+
+/* Background utilities */
+.bg-accent-custom {
+  background-color: var(--accent-hex);
+}
+
+.bg-accent-custom\/90 {
+  background-color: color-mix(in srgb, var(--accent-hex) 90%, transparent);
+}
+
+.bg-accent-custom\/80 {
+  background-color: color-mix(in srgb, var(--accent-hex) 80%, transparent);
+}
+
+/* Text utilities */
+.text-accent-custom {
+  color: var(--accent-hex);
+}
+
+/* Border utilities */
+.border-accent-custom {
+  border-color: var(--accent-hex);
+}
+
+/* Ring utilities */
+.ring-accent-custom {
+  --tw-ring-color: var(--accent-hex);
+}
+
+/* Focus states */
+.focus-accent-custom:focus {
+  outline-color: var(--accent-hex);
+}
