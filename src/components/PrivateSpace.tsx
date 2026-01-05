@@ -3,6 +3,7 @@ import { Search, ArrowUpDown, Lock, ArrowLeft } from "lucide-react";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
 import { BookmarkCard } from "@/components/BookmarkCard";
 import { CategoryHoverBoard } from "@/components/CategoryHoverBoard";
+import { SettingsMenu } from "@/components/SettingsMenu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,6 +21,12 @@ interface PrivateSpaceProps {
   onDelete: (id: string) => void;
   onToggleFavorite: (id: string) => void;
   onExit: () => void;
+  onImport: (bookmarks: Bookmark[], categories: Category[]) => void;
+  onOpenCategoryManager: () => void;
+  onUpdateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void;
+  onResetSettings: () => void;
+  onClearData: () => void;
+  onClearPrivateData: () => void;
 }
 
 type SortOption = "name" | "rating" | "recent";
@@ -33,6 +40,12 @@ export function PrivateSpace({
   onDelete,
   onToggleFavorite,
   onExit,
+  onImport,
+  onOpenCategoryManager,
+  onUpdateSetting,
+  onResetSettings,
+  onClearData,
+  onClearPrivateData,
 }: PrivateSpaceProps) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -151,10 +164,24 @@ export function PrivateSpace({
               </div>
             </div>
 
-            <Button variant="outline" onClick={onExit} className="gap-2 private-space-button">
-              <ArrowLeft className="w-4 h-4" />
-              Exit
-            </Button>
+            <div className="flex items-center gap-2">
+              <SettingsMenu
+                bookmarks={bookmarks}
+                categories={categories}
+                settings={settings}
+                onImport={onImport}
+                onOpenCategoryManager={onOpenCategoryManager}
+                onUpdateSetting={onUpdateSetting}
+                onResetSettings={onResetSettings}
+                onClearData={onClearData}
+                onClearPrivateData={onClearPrivateData}
+                isPrivateSpace={true}
+              />
+              <Button variant="outline" onClick={onExit} className="gap-2 private-space-button">
+                <ArrowLeft className="w-4 h-4" />
+                Exit
+              </Button>
+            </div>
           </div>
         </div>
       </header>

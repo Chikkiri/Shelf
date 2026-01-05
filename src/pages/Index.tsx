@@ -198,6 +198,10 @@ const Index = () => {
     setBookmarks([]);
   };
 
+  const handleClearPrivateData = () => {
+    setBookmarks((prev) => prev.filter((b) => !b.private));
+  };
+
   const handlePrivateSpaceClick = () => {
     if (isUnlocked) {
       setShowPrivateSpace(true);
@@ -265,6 +269,12 @@ const Index = () => {
           onDelete={handleDeleteBookmark}
           onToggleFavorite={handleToggleFavorite}
           onExit={handleExitPrivateSpace}
+          onImport={handleImportData}
+          onOpenCategoryManager={() => setCategoryManagerOpen(true)}
+          onUpdateSetting={updateSetting}
+          onResetSettings={resetSettings}
+          onClearData={handleClearData}
+          onClearPrivateData={handleClearPrivateData}
         />
 
         {/* Floating Add Button */}
@@ -273,6 +283,7 @@ const Index = () => {
             setEditingBookmark(null);
             setBookmarkDialogOpen(true);
           }}
+          isPrivateSpace={true}
         />
 
         {/* Dialogs */}
@@ -331,7 +342,7 @@ const Index = () => {
               onUpdateSetting={updateSetting}
               onResetSettings={resetSettings}
               onClearData={handleClearData}
-              
+              onClearPrivateData={handleClearPrivateData}
             />
           </div>
         </div>

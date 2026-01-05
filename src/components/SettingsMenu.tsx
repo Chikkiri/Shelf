@@ -43,6 +43,8 @@ interface SettingsMenuProps {
   onUpdateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void;
   onResetSettings: () => void;
   onClearData: () => void;
+  onClearPrivateData?: () => void;
+  isPrivateSpace?: boolean;
 }
 
 export function SettingsMenu({
@@ -54,6 +56,8 @@ export function SettingsMenu({
   onUpdateSetting,
   onResetSettings,
   onClearData,
+  onClearPrivateData,
+  isPrivateSpace = false,
 }: SettingsMenuProps) {
   const [open, setOpen] = useState(false);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
@@ -114,6 +118,14 @@ export function SettingsMenu({
     setOpen(false);
     toast.success("All items deleted");
   };
+
+  const handleClearPrivateData = () => {
+    if (onClearPrivateData) {
+      onClearPrivateData();
+      setOpen(false);
+      toast.success("Private Space data cleared");
+    }
+  }; 
 
   const handlePinChange = (newPin: string, oldPin?: string) => {
     if (hasPin && oldPin) {
@@ -439,6 +451,34 @@ export function SettingsMenu({
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+
+              {onClearPrivateData && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" className="w-full justify-start text-destructive hover:text-destructive">
+                      <Lock className="h-4 w-4 mr-2" />
+                      Clear Private Space Data
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Clear Private Space Data?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete all private items only. Regular items, categories, and settings will be preserved. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={handleClearPrivateData}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete Private Items
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
             </div>
           </div>
         </div>
