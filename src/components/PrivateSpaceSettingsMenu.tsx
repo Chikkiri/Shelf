@@ -67,7 +67,7 @@ export function PrivateSpaceSettingsMenu({
           <Settings className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md overflow-hidden flex flex-col bg-popover">
+      <SheetContent className="w-full sm:max-w-md overflow-hidden flex flex-col private-space-bg border-l private-space-border">
         <SheetHeader className="flex-shrink-0">
           <SheetTitle className="private-space-text">Private Space Settings</SheetTitle>
         </SheetHeader>
@@ -180,6 +180,7 @@ export function PrivateSpaceSettingsMenu({
                 <Switch
                   checked={settings.showDescriptions}
                   onCheckedChange={(v) => onUpdateSetting("showDescriptions", v)}
+                neutral
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -187,6 +188,7 @@ export function PrivateSpaceSettingsMenu({
                 <Switch
                   checked={settings.showNotes}
                   onCheckedChange={(v) => onUpdateSetting("showNotes", v)}
+                neutral
                 />
               </div>
             </div>
