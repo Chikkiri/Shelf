@@ -269,11 +269,9 @@ const Index = () => {
           onDelete={handleDeleteBookmark}
           onToggleFavorite={handleToggleFavorite}
           onExit={handleExitPrivateSpace}
-          onImport={handleImportData}
           onOpenCategoryManager={() => setCategoryManagerOpen(true)}
           onUpdateSetting={updateSetting}
           onResetSettings={resetSettings}
-          onClearData={handleClearData}
           onClearPrivateData={handleClearPrivateData}
         />
 
