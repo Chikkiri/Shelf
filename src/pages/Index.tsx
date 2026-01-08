@@ -349,7 +349,7 @@ const Index = () => {
       <main className="container py-6">
 
         {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
+        <div className="flex gap-4 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
@@ -362,8 +362,8 @@ const Index = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="shrink-0">
-                <ArrowUpDown className="w-4 h-4 mr-2" />
-                Sort: {sortBy === "name" ? "Name" : sortBy === "rating" ? "Rating" : "Recent"}
+                <ArrowUpDown className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Sort: {sortBy === "name" ? "Name" : sortBy === "rating" ? "Rating" : "Recent"}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
