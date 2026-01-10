@@ -237,7 +237,7 @@ export function PrivateSpace({
         )}
 
         {/* Type filter - Top Bar (hidden when Links category is selected) */}
-        {!categories.find((c) => c.id === selectedCategory && c.name === "Links") && (
+        {!categories.find((c) => c.id === selectedCategory && c.name === "Link") && (
           <div className="flex justify-center gap-8 mb-6">
             <button
               onClick={() => setSelectedType("all")}

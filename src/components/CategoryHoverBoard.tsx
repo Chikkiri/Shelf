@@ -14,7 +14,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   "Productivity": <Briefcase className="w-5 h-5" />,
   "Design": <Palette className="w-5 h-5" />,
   "Entertainment": <Gamepad2 className="w-5 h-5" />,
-  "Links": <Link2 className="w-5 h-5" />,
+  "Link": <Link2 className="w-5 h-5" />,
   "Development": <Code2 className="w-5 h-5" />,
 };
 
@@ -27,7 +27,7 @@ export function CategoryHoverBoard({
   isPrivateSpace = false,
 }: CategoryHoverBoardProps) {
  // Filter to only show the specified categories in order
-  const allowedCategories = ["Productivity", "Design", "Entertainment", "Links", "Development"];
+  const allowedCategories = ["Productivity", "Design", "Entertainment", "Link", "Development"];
   const filteredCategories = allowedCategories
     .map((name) => categories.find((cat) => cat.name === name))
     .filter((cat): cat is Category => cat !== undefined);

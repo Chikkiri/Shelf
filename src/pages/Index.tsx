@@ -27,7 +27,7 @@ const DEFAULT_CATEGORIES: Category[] = [
   { id: "2", name: "Design", color: "purple" },
   { id: "3", name: "Productivity", color: "green" },
   { id: "4", name: "Entertainment", color: "pink" },
-  { id: "links", name: "Links", color: "orange" },
+  { id: "5", name: "Link", color: "orange" },
 ];
 
 type SortOption = "name" | "rating" | "recent";
@@ -404,7 +404,7 @@ const Index = () => {
         )}
 
         {/* Type filter - Top Bar (hidden when Links category is selected) */}
-        {!categories.find((c) => c.id === selectedCategory && c.name === "Links") && (
+        {!categories.find((c) => c.id === selectedCategory && c.name === "Link") && (
           <div className="flex justify-center gap-8 mb-6">
             <button
               onClick={() => setSelectedType("all")}
