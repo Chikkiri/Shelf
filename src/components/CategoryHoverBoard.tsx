@@ -27,7 +27,7 @@ export function CategoryHoverBoard({
   isPrivateSpace = false,
 }: CategoryHoverBoardProps) {
  // Filter to only show the specified categories in order
-  const allowedCategories = ["Productivity", "Design", "Entertainment", "Link", "Development"];
+  const allowedCategories = ["Productivity", "Design", "Entertainment", "Links", "Development"];
   const filteredCategories = allowedCategories
     .map((name) => categories.find((cat) => cat.name === name))
     .filter((cat): cat is Category => cat !== undefined);

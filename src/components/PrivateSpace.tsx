@@ -237,7 +237,7 @@ export function PrivateSpace({
         )}
 
         {/* Type filter - Top Bar (hidden when Links category is selected) */}
-        {!categories.find((c) => c.id === selectedCategory && c.name === "Link") && (
+        {!categories.find((c) => c.id === selectedCategory && c.name === "Links") && (
           <div className="flex justify-center gap-8 mb-6">
             <button
               onClick={() => setSelectedType("all")}
@@ -282,35 +282,6 @@ export function PrivateSpace({
             totalCount={privateBookmarks.length}
             isPrivateSpace={true}
           />
-        )}
-        
-        {/* Category filter */}
-        {categoriesWithPrivateItems.length > 0 && (
-          <div className="flex flex-wrap gap-2 mb-6">
-            <button
-              onClick={() => setSelectedCategory(null)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                selectedCategory === null
-                  ? "private-space-chip-active"
-                  : "private-space-chip"
-              }`}
-            >
-              All ({privateBookmarks.length})
-            </button>
-            {categoriesWithPrivateItems.map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors ${
-                  selectedCategory === cat.id
-                    ? "private-space-chip-active"
-                    : "private-space-chip"
-                }`}
-              >
-                {cat.name} ({bookmarkCounts[cat.id] || 0})
-              </button>
-            ))}
-          </div>
         )}
 
         {/* Private bookmarks grid */}
