@@ -37,6 +37,7 @@ export interface AppSettings {
   layoutView: LayoutView;
   gridColumns: GridColumns;
   hoverBoardPosition: HoverBoardPosition;
+  hideLinksFromAll: boolean;
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -47,4 +48,5 @@ export const DEFAULT_SETTINGS: AppSettings = {
   layoutView: "grid",
   gridColumns: "auto",
   hoverBoardPosition: "bottom",
+  hideLinksFromAll: false,
 };

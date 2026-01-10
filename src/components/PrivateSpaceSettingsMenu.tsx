@@ -196,27 +196,7 @@ export function PrivateSpaceSettingsMenu({
 
           <Separator />
 
-          {/* Categories */}
-          <div className="space-y-4">
-            <h3 className="text-sm font-medium flex items-center gap-2 private-space-text">
-              <FolderOpen className="h-4 w-4" />
-              Categories
-            </h3>
-            <Button
-              variant="outline"
-              className="w-full justify-start private-space-button"
-              onClick={() => {
-                setOpen(false);
-                onOpenCategoryManager();
-              }}
-            >
-              <FolderOpen className="h-4 w-4 mr-2" />
-              Edit Categories
-            </Button>
-          </div>
-
-          <Separator />
-
+          
           {/* Reset Section */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium flex items-center gap-2 text-destructive">

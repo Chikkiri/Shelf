@@ -1,10 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect } from "react";
 import { ThemeMode } from "@/types/bookmark";
 
 export function useTheme(themeMode: ThemeMode) {
-  useEffect(() => {
+  // Use useLayoutEffect to apply theme before paint to prevent flash
+  useLayoutEffect(() => {
     const applyTheme = (isDark: boolean) => {
-      document.documentElement.classList.toggle("dark", isDark);
+     if (isDark) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
     };
 
     if (themeMode === "auto") {

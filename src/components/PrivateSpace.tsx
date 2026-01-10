@@ -73,8 +73,21 @@ export function PrivateSpace({
     }, {} as Record<string, number>);
   }, [privateBookmarks]);
 
+  // Find the Links category ID
+  const linksCategoryId = useMemo(() => {
+    return categories.find((c) => c.name === "Links")?.id;
+  }, [categories]);
+
   const filteredBookmarks = useMemo(() => {
     let result = [...privateBookmarks];
+
+    // Hide links from "All" if setting is enabled and no category is selected
+    if (settings.hideLinksFromAll && !selectedCategory && linksCategoryId) {
+      result = result.filter((b) => {
+        const ids = b.categoryIds || [b.categoryId];
+        return !ids.includes(linksCategoryId);
+      });
+    }
 
     if (search) {
       const query = search.toLowerCase();
@@ -113,7 +126,7 @@ export function PrivateSpace({
     });
 
     return result;
-  }, [privateBookmarks, search, selectedCategory, selectedType, sortBy]);
+  }, [privateBookmarks, search, selectedCategory, selectedType, sortBy, settings.hideLinksFromAll, linksCategoryId]);
   
   // Grid classes based on layout settings
   const getGridClasses = () => {
@@ -223,39 +236,41 @@ export function PrivateSpace({
           />
         )}
 
-        {/* Type filter - Top Bar */}
-        <div className="flex justify-center gap-8 mb-6">
-          <button
-            onClick={() => setSelectedType("all")}
-            className={`text-sm font-medium transition-colors ${
-              selectedType === "all"
-                ? "private-space-text-accent"
-                : "private-space-muted hover:private-space-text"
-            }`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setSelectedType("website")}
-            className={`text-sm font-medium transition-colors ${
-              selectedType === "website"
-                ? "private-space-text-accent"
-                : "private-space-muted hover:private-space-text"
-            }`}
-          >
-            Website
-          </button>
-          <button
-            onClick={() => setSelectedType("app")}
-            className={`text-sm font-medium transition-colors ${
-              selectedType === "app"
-                ? "private-space-text-accent"
-                : "private-space-muted hover:private-space-text"
-            }`}
-          >
-            Application
-          </button>
-        </div>
+        {/* Type filter - Top Bar (hidden when Links category is selected) */}
+        {!categories.find((c) => c.id === selectedCategory && c.name === "Links") && (
+          <div className="flex justify-center gap-8 mb-6">
+            <button
+              onClick={() => setSelectedType("all")}
+              className={`text-sm font-medium transition-colors ${
+                selectedType === "all"
+                  ? "private-space-text-accent"
+                  : "private-space-muted hover:private-space-text"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setSelectedType("website")}
+              className={`text-sm font-medium transition-colors ${
+                selectedType === "website"
+                  ? "private-space-text-accent"
+                  : "private-space-muted hover:private-space-text"
+              }`}
+            >
+              Website
+            </button>
+            <button
+              onClick={() => setSelectedType("app")}
+              className={`text-sm font-medium transition-colors ${
+                selectedType === "app"
+                  ? "private-space-text-accent"
+                  : "private-space-muted hover:private-space-text"
+              }`}
+            >
+              Application
+            </button>
+          </div>
+        )}
 
         {/* Category Hover Board - Bottom position (default) */}
         {settings.hoverBoardPosition !== "top" && (

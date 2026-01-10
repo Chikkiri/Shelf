@@ -1,4 +1,4 @@
-import { Layers, Briefcase, Palette, Gamepad2, Code2 } from "lucide-react";
+import { Layers, Briefcase, Palette, Gamepad2, Code2, Link2 } from "lucide-react";
 import { Category } from "@/types/bookmark";
 
 interface CategoryHoverBoardProps {
@@ -14,6 +14,7 @@ const CATEGORY_ICONS: Record<string, React.ReactNode> = {
   "Productivity": <Briefcase className="w-5 h-5" />,
   "Design": <Palette className="w-5 h-5" />,
   "Entertainment": <Gamepad2 className="w-5 h-5" />,
+  "Links": <Link2 className="w-5 h-5" />,
   "Development": <Code2 className="w-5 h-5" />,
 };
 
@@ -25,11 +26,11 @@ export function CategoryHoverBoard({
   totalCount,
   isPrivateSpace = false,
 }: CategoryHoverBoardProps) {
-  // Filter to only show the specified categories
-  const allowedCategories = ["Productivity", "Design", "Entertainment", "Development"];
-  const filteredCategories = categories.filter((cat) =>
-    allowedCategories.includes(cat.name)
-  );
+ // Filter to only show the specified categories in order
+  const allowedCategories = ["Productivity", "Design", "Entertainment", "Links", "Development"];
+  const filteredCategories = allowedCategories
+    .map((name) => categories.find((cat) => cat.name === name))
+    .filter((cat): cat is Category => cat !== undefined);
 
   const baseItemClasses = isPrivateSpace
     ? "private-space-chip"

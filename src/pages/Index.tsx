@@ -27,6 +27,7 @@ const DEFAULT_CATEGORIES: Category[] = [
   { id: "2", name: "Design", color: "purple" },
   { id: "3", name: "Productivity", color: "green" },
   { id: "4", name: "Entertainment", color: "pink" },
+  { id: "5", name: "Links", color: "orange" },
 ];
 
 type SortOption = "name" | "rating" | "recent";
@@ -72,11 +73,22 @@ const Index = () => {
       }, {} as Record<string, number>);
   }, [bookmarks]);
 
+ // Find the Links category ID
+  const linksCategoryId = useMemo(() => {
+    return categories.find((c) => c.name === "Links")?.id;
+  }, [categories]);
 
   const filteredBookmarks = useMemo(() => {
     // Filter out private items from main list
     let result = bookmarks.filter((b) => !b.private);
 
+    // Hide links from "All" if setting is enabled and no category is selected
+    if (settings.hideLinksFromAll && !selectedCategory && linksCategoryId) {
+      result = result.filter((b) => {
+        const ids = b.categoryIds || [b.categoryId];
+        return !ids.includes(linksCategoryId);
+      });
+    }
     if (search) {
       const query = search.toLowerCase();
       result = result.filter((b) => b.name.toLowerCase().includes(query));
@@ -119,7 +131,7 @@ const Index = () => {
   }
   
     return result;
-  }, [bookmarks, search, selectedCategory, selectedType, sortBy]);
+  }, [bookmarks, search, selectedCategory, selectedType, sortBy, settings.hideLinksFromAll, linksCategoryId]);
 
   const handleAddBookmark = (data: Omit<Bookmark, "id" | "createdAt">) => {
     const newBookmark: Bookmark = {
@@ -391,39 +403,41 @@ const Index = () => {
           />
         )}
 
-        {/* Type filter - Top Bar */}
-        <div className="flex justify-center gap-8 mb-6">
-          <button
-            onClick={() => setSelectedType("all")}
-            className={`text-sm font-medium transition-colors ${
-              selectedType === "all"
-                ? "text-accent-custom"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            All
-          </button>
-          <button
-            onClick={() => setSelectedType("website")}
-            className={`text-sm font-medium transition-colors ${
-              selectedType === "website"
-                ? "text-accent-custom"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Website
-          </button>
-          <button
-            onClick={() => setSelectedType("app")}
-            className={`text-sm font-medium transition-colors ${
-              selectedType === "app"
-                ? "text-accent-custom"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Application
-          </button>
-        </div>
+        {/* Type filter - Top Bar (hidden when Links category is selected) */}
+        {!categories.find((c) => c.id === selectedCategory && c.name === "Links") && (
+          <div className="flex justify-center gap-8 mb-6">
+            <button
+              onClick={() => setSelectedType("all")}
+              className={`text-sm font-medium transition-colors ${
+                selectedType === "all"
+                  ? "text-accent-custom"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setSelectedType("website")}
+              className={`text-sm font-medium transition-colors ${
+                selectedType === "website"
+                  ? "text-accent-custom"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Website
+            </button>
+            <button
+              onClick={() => setSelectedType("app")}
+              className={`text-sm font-medium transition-colors ${
+                selectedType === "app"
+                  ? "text-accent-custom"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              Application
+            </button>
+          </div>
+        )}
 
        {/* Category Hover Board - Bottom position (default) */}
         {settings.hoverBoardPosition !== "top" && (
