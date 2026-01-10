@@ -27,7 +27,7 @@ const DEFAULT_CATEGORIES: Category[] = [
   { id: "2", name: "Design", color: "purple" },
   { id: "3", name: "Productivity", color: "green" },
   { id: "4", name: "Entertainment", color: "pink" },
-  { id: "5", name: "Links", color: "orange" },
+  { id: "links", name: "Links", color: "orange" },
 ];
 
 type SortOption = "name" | "rating" | "recent";
@@ -94,7 +94,7 @@ const Index = () => {
       result = result.filter((b) => b.name.toLowerCase().includes(query));
     }
 
-    if (selectedCategory === "favorite") {
+    if (selectedCategory === "_favorite_") {
   result = result.filter((b) => b.favorite);
 } else if (selectedCategory) {
   result = result.filter((b) => {
