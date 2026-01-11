@@ -150,7 +150,7 @@ export function SettingsMenu({
           <Settings className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md overflow-hidden flex flex-col">
+      <SheetContent className="w-full sm:max-w-md overflow-hidden flex flex-col bg-white dark:bg-zinc-900 opacity-100">
         <SheetHeader className="flex-shrink-0">
           <SheetTitle>Settings</SheetTitle>
         </SheetHeader>
