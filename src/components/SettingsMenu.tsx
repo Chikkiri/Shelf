@@ -328,10 +328,10 @@ export function SettingsMenu({
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label>Hide Links from "All"</Label>
+                <Label>Hide URL from "All"</Label>
                 <Switch
-                  checked={settings.hideLinksFromAll}
-                  onCheckedChange={(v) => onUpdateSetting("hideLinksFromAll", v)}
+                  checked={settings.hideURLFromAll}
+                  onCheckedChange={(v) => onUpdateSetting("hideURLFromAll", v)}
                 />
               </div>
             </div>

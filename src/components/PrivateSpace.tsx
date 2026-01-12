@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, ArrowUpDown, Lock, ArrowLeft } from "lucide-react";
+import { Search, ArrowUpDown, Lock, ArrowLeft, Heart, Link2 } from "lucide-react";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
 import { BookmarkCard } from "@/components/BookmarkCard";
 import { CategoryHoverBoard } from "@/components/CategoryHoverBoard";
@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { filterAndSortBookmarks, getSortLabel, SortOption, TypeFilter } from "@/utils/filterAndSort";
 
 interface PrivateSpaceProps {
   bookmarks: Bookmark[];
@@ -26,9 +27,6 @@ interface PrivateSpaceProps {
   onResetSettings: () => void;
   onClearPrivateData: () => void;
 }
-
-type SortOption = "name" | "rating" | "recent";
-type TypeFilter = "all" | "website" | "app";
 
 export function PrivateSpace({
   bookmarks,
@@ -47,6 +45,7 @@ export function PrivateSpace({
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<TypeFilter>("all");
   const [sortBy, setSortBy] = useState<SortOption>("recent");
+  const [showFavorites, setShowFavorites] = useState(false);
 
   // Apply neutral Private Space theme on mount, restore on unmount
   useEffect(() => {
@@ -56,11 +55,15 @@ export function PrivateSpace({
     };
   }, []);
 
+  // Find the URL category ID
+  const urlCategoryId = useMemo(() => {
+    return categories.find((c) => c.name === "URL")?.id;
+  }, [categories]);
+
   // Get only private items
   const privateBookmarks = useMemo(() => {
     return bookmarks.filter((b) => b.private);
   }, [bookmarks]);
-
 
   // Count bookmarks per category (private only)
   const bookmarkCounts = useMemo(() => {
@@ -73,60 +76,26 @@ export function PrivateSpace({
     }, {} as Record<string, number>);
   }, [privateBookmarks]);
 
-  // Find the Links category ID
-  const linksCategoryId = useMemo(() => {
-    return categories.find((c) => c.name === "Links")?.id;
-  }, [categories]);
+ // Check if URL category is selected
+  const isURLCategorySelected = selectedCategory === urlCategoryId;
 
   const filteredBookmarks = useMemo(() => {
-    let result = [...privateBookmarks];
-
-    // Hide links from "All" if setting is enabled and no category is selected
-    if (settings.hideLinksFromAll && !selectedCategory && linksCategoryId) {
-      result = result.filter((b) => {
-        const ids = b.categoryIds || [b.categoryId];
-        return !ids.includes(linksCategoryId);
-      });
-    }
-
-    if (search) {
-      const query = search.toLowerCase();
-      result = result.filter((b) => b.name.toLowerCase().includes(query));
-    }
-
-    if (selectedCategory) {
-      result = result.filter((b) => {
-        const ids = b.categoryIds || [b.categoryId];
-        return ids.includes(selectedCategory);
-      });
-    }
-
-        // Type filter
-    if (selectedType !== "all") {
-      result = result.filter((b) => b.type === selectedType);
-    }
-
-    switch (sortBy) {
-      case "name":
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "rating":
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-      case "recent":
-        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        break;
-    }
-
-    // Always sort pinned items to top
-    result.sort((a, b) => {
-      if (a.pinned && !b.pinned) return -1;
-      if (!a.pinned && b.pinned) return 1;
-      return 0;
+    return filterAndSortBookmarks({
+      bookmarks,
+      search,
+      selectedCategory,
+      selectedType,
+      sortBy,
+      hideURLFromAll: settings.hideURLFromAll,
+      urlCategoryId,
+      isPrivateSpace: true,
+      showFavorites,
     });
+  }, [bookmarks, search, selectedCategory, selectedType, sortBy, settings.hideURLFromAll, urlCategoryId, showFavorites]);
 
-    return result;
-  }, [privateBookmarks, search, selectedCategory, selectedType, sortBy, settings.hideLinksFromAll, linksCategoryId]);
+  const handleToggleFavorites = () => {
+    setShowFavorites((prev) => !prev);
+  };
   
   // Grid classes based on layout settings
   const getGridClasses = () => {
@@ -154,8 +123,34 @@ export function PrivateSpace({
 
   const gridClasses = getGridClasses();
 
-  // Get categories that have private items
-  const categoriesWithPrivateItems = categories.filter(cat => bookmarkCounts[cat.id] > 0);
+  // Get empty state content
+  const getEmptyState = () => {
+    if (showFavorites) {
+      return {
+        icon: <Heart className="w-8 h-8 private-space-muted" />,
+        title: "No favorites yet",
+        description: "Mark items as favorite to see them here",
+      };
+    }
+    
+    if (isURLCategorySelected) {
+      return {
+        icon: <Link2 className="w-8 h-8 private-space-muted" />,
+        title: "No URL items yet",
+        description: "Add your first private URL item to get started",
+      };
+    }
+    
+    return {
+      icon: <Lock className="w-8 h-8 private-space-muted" />,
+      title: privateBookmarks.length === 0 ? "No private items" : "No matches found",
+      description: privateBookmarks.length === 0
+        ? "Mark items as private to see them here"
+        : "Try adjusting your search or filters",
+    };
+  };
+
+  const emptyState = getEmptyState();
 
   return (
     <div className="min-h-screen private-space-bg pb-24 overflow-x-hidden w-full max-w-full">
@@ -207,7 +202,7 @@ export function PrivateSpace({
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="shrink-0 private-space-button">
                 <ArrowUpDown className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Sort: {sortBy === "name" ? "Name" : sortBy === "rating" ? "Rating" : "Recent"}</span>
+                <span className="hidden sm:inline">Sort: {getSortLabel(sortBy)}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -219,6 +214,9 @@ export function PrivateSpace({
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortBy("rating")}>
                 Highest Rating
+                 </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("favorite")}>
+                Favorite
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -233,11 +231,13 @@ export function PrivateSpace({
             bookmarkCounts={bookmarkCounts}
             totalCount={privateBookmarks.length}
             isPrivateSpace={true}
+            showFavorites={showFavorites}
+            onToggleFavorites={handleToggleFavorites}
           />
         )}
 
-        {/* Type filter - Top Bar (hidden when Links category is selected) */}
-        {!categories.find((c) => c.id === selectedCategory && c.name === "Links") && (
+        {/* Type filter - Top Bar (hidden when URL category is selected or Favorites is active) */}
+        {!isURLCategorySelected && !showFavorites && (
           <div className="flex justify-center gap-8 mb-6">
             <button
               onClick={() => setSelectedType("all")}
@@ -281,6 +281,8 @@ export function PrivateSpace({
             bookmarkCounts={bookmarkCounts}
             totalCount={privateBookmarks.length}
             isPrivateSpace={true}
+            showFavorites={showFavorites}
+            onToggleFavorites={handleToggleFavorites}
           />
         )}
 
@@ -288,15 +290,13 @@ export function PrivateSpace({
         {filteredBookmarks.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl private-space-empty-icon flex items-center justify-center elevation-1">
-              <Lock className="w-8 h-8 private-space-muted" />
+              {emptyState.icon}
             </div>
             <h2 className="text-lg font-semibold private-space-text mb-2">
-              {privateBookmarks.length === 0 ? "Empty" : "No matches found"}
+              {emptyState.title}
             </h2>
             <p className="private-space-muted mb-4">
-              {privateBookmarks.length === 0
-                ? "Mark as private to see them here"
-                : "Try adjusting your search or filters"}
+             {emptyState.description}
             </p>
           </div>
         ) : (

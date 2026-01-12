@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Search, ArrowUpDown, Layers } from "lucide-react";
+import { Search, ArrowUpDown, Layers, Heart, Link2 } from "lucide-react";
 import { Bookmark, Category, DEFAULT_SETTINGS } from "@/types/bookmark";
 import { cn } from "@/lib/utils";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
@@ -8,6 +8,7 @@ import { usePrivateSpace } from "@/contexts/PrivateSpaceContext";
 import { CategoryHoverBoard } from "@/components/CategoryHoverBoard";
 import { BookmarkCard } from "@/components/BookmarkCard";
 import { BookmarkDialog } from "@/components/BookmarkDialog";
+import { URLBookmarkDialog } from "@/components/URLBookmarkDialog";
 import { CategoryManager } from "@/components/CategoryManager";
 import { SettingsMenu } from "@/components/SettingsMenu";
 import { FloatingAddButton } from "@/components/FloatingAddButton";
@@ -21,17 +22,15 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { filterAndSortBookmarks, getSortLabel, SortOption, TypeFilter } from "@/utils/filterAndSort";
 
 const DEFAULT_CATEGORIES: Category[] = [
   { id: "1", name: "Development", color: "blue" },
   { id: "2", name: "Design", color: "purple" },
   { id: "3", name: "Productivity", color: "green" },
   { id: "4", name: "Entertainment", color: "pink" },
-  { id: "5", name: "Links", color: "orange" },
+  { id: "5", name: "URL", color: "orange" },
 ];
-
-type SortOption = "name" | "rating" | "recent";
-type TypeFilter = "all" | "website" | "app";
 
 const Index = () => {
   const [bookmarks, setBookmarks] = useLocalStorage<Bookmark[]>("bookmarks", []);
@@ -43,8 +42,10 @@ const Index = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<TypeFilter>("all");  
   const [sortBy, setSortBy] = useState<SortOption>("recent");
-  
+  const [showFavorites, setShowFavorites] = useState(false);
+
   const [bookmarkDialogOpen, setBookmarkDialogOpen] = useState(false);
+  const [urlDialogOpen, setURLDialogOpen] = useState(false);
   const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
   const [editingBookmark, setEditingBookmark] = useState<Bookmark | null>(null);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
@@ -55,11 +56,11 @@ const Index = () => {
   "accent-blue"
 );
 
-  // Get non-private favorite items
-  const favoriteBookmarks = useMemo(() => {
-    return bookmarks.filter((b) => b.favorite && !b.private);
-  }, [bookmarks]);
-
+  // Find the URL category ID
+  const urlCategoryId = useMemo(() => {
+    return categories.find((c) => c.name === "URL")?.id;
+  }, [categories]);
+  
   // Count non-private bookmarks per category
   const bookmarkCounts = useMemo(() => {
     return bookmarks
@@ -73,65 +74,22 @@ const Index = () => {
       }, {} as Record<string, number>);
   }, [bookmarks]);
 
- // Find the Links category ID
-  const linksCategoryId = useMemo(() => {
-    return categories.find((c) => c.name === "Links")?.id;
-  }, [categories]);
+  // Check if URL category is selected
+  const isURLCategorySelected = selectedCategory === urlCategoryId;
 
   const filteredBookmarks = useMemo(() => {
-    // Filter out private items from main list
-    let result = bookmarks.filter((b) => !b.private);
-
-    // Hide links from "All" if setting is enabled and no category is selected
-    if (settings.hideLinksFromAll && !selectedCategory && linksCategoryId) {
-      result = result.filter((b) => {
-        const ids = b.categoryIds || [b.categoryId];
-        return !ids.includes(linksCategoryId);
-      });
-    }
-    if (search) {
-      const query = search.toLowerCase();
-      result = result.filter((b) => b.name.toLowerCase().includes(query));
-    }
-
-    if (selectedCategory === "_favorite_") {
-  result = result.filter((b) => b.favorite);
-} else if (selectedCategory) {
-  result = result.filter((b) => {
-    const ids = b.categoryIds || [b.categoryId];
-    return ids.includes(selectedCategory);
-  });
-}
-
-
-        // Type filter
-    if (selectedType !== "all") {
-      result = result.filter((b) => b.type === selectedType);
-    }
-
-    switch (sortBy) {
-      case "name":
-        result.sort((a, b) => a.name.localeCompare(b.name));
-        break;
-      case "rating":
-        result.sort((a, b) => b.rating - a.rating);
-        break;
-      case "recent":
-        result.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        break;
-    }
-
-    // Always sort pinned items to top
-    if (selectedCategory !== "favorite") {
-    result.sort((a, b) => {
-      if (a.pinned && !b.pinned) return -1;
-      if (!a.pinned && b.pinned) return 1;
-      return 0;
+    return filterAndSortBookmarks({
+      bookmarks,
+      search,
+      selectedCategory,
+      selectedType,
+      sortBy,
+      hideURLFromAll: settings.hideURLFromAll,
+      urlCategoryId,
+      isPrivateSpace: false,
+      showFavorites,
     });
-  }
-  
-    return result;
-  }, [bookmarks, search, selectedCategory, selectedType, sortBy, settings.hideLinksFromAll, linksCategoryId]);
+  }, [bookmarks, search, selectedCategory, selectedType, sortBy, settings.hideURLFromAll, urlCategoryId, showFavorites]);
 
   const handleAddBookmark = (data: Omit<Bookmark, "id" | "createdAt">) => {
     const newBookmark: Bookmark = {
@@ -166,7 +124,23 @@ const Index = () => {
 
   const openEditDialog = (bookmark: Bookmark) => {
     setEditingBookmark(bookmark);
-    setBookmarkDialogOpen(true);
+    // Check if this is a URL item
+    const isURLItem = bookmark.categoryIds?.includes(urlCategoryId || "") || bookmark.categoryId === urlCategoryId;
+    if (isURLItem && urlCategoryId) {
+      setURLDialogOpen(true);
+    } else {
+      setBookmarkDialogOpen(true);
+    }
+  };
+
+  const handleAddClick = () => {
+    setEditingBookmark(null);
+    // Use URL dialog when URL category is selected
+    if (isURLCategorySelected && urlCategoryId) {
+      setURLDialogOpen(true);
+    } else {
+      setBookmarkDialogOpen(true);
+    }
   };
 
   const handleAddCategory = (name: string, color: string) => {
@@ -186,6 +160,7 @@ const Index = () => {
 
   const handleDeleteCategory = (id: string) => {
     setCategories((prev) => prev.filter((c) => c.id !== id));
+
     // Remove category from bookmarks (but keep bookmark if it has other categories)
     setBookmarks((prev) =>
       prev.map((b) => {
@@ -243,6 +218,10 @@ const Index = () => {
     setShowPrivateSpace(false);
   };
 
+  const handleToggleFavorites = () => {
+    setShowFavorites((prev) => !prev);
+  };
+
   // Grid classes based on layout settings
   const getGridClasses = () => {
     const gapClass = settings.cardSize === "small" ? "gap-3" : settings.cardSize === "large" ? "gap-5" : "gap-4";
@@ -269,6 +248,35 @@ const Index = () => {
 
   const gridClasses = getGridClasses();
 
+  // Get empty state content
+  const getEmptyState = () => {
+    const nonPrivateCount = bookmarks.filter((b) => !b.private).length;
+    
+    if (showFavorites) {
+      return {
+        icon: <Heart className="w-8 h-8 text-muted-foreground" />,
+        title: "No favorites yet",
+        description: "Mark items as favorite to see them here",
+      };
+    }
+    
+    if (isURLCategorySelected) {
+      return {
+        icon: <Link2 className="w-8 h-8 text-muted-foreground" />,
+        title: "No URL yet",
+        description: "Add your first URL item to get started",
+      };
+    }
+    
+    return {
+      icon: <Layers className="w-8 h-8 text-muted-foreground" />,
+      title: nonPrivateCount === 0 ? "No items yet" : "No matches found",
+      description: nonPrivateCount === 0
+        ? "Add your first item to get started"
+        : "Try adjusting your search or filters",
+    };
+  };
+
   // Show Private Space if unlocked and requested
   if (showPrivateSpace && isUnlocked) {
     return (
@@ -289,11 +297,7 @@ const Index = () => {
 
         {/* Floating Add Button */}
         <FloatingAddButton
-          onClick={() => {
-            setEditingBookmark(null);
-            setBookmarkDialogOpen(true);
-          }}
-          isPrivateSpace={true}
+          onClick={handleAddClick}
         />
 
         {/* Dialogs */}
@@ -308,6 +312,19 @@ const Index = () => {
           onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
         />
 
+        {urlCategoryId && (
+        <URLBookmarkDialog
+          open={urlDialogOpen}
+          onOpenChange={(open) => {
+            setURLDialogOpen(open);
+            if (!open) setEditingBookmark(null);
+          }}
+          bookmark={editingBookmark}
+          urlCategoryId={urlCategoryId}
+          onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
+        />
+      )}
+
         <CategoryManager
           open={categoryManagerOpen}
           onOpenChange={setCategoryManagerOpen}
@@ -321,9 +338,8 @@ const Index = () => {
     );
   }
 
+  const emptyState = getEmptyState();
   return (
-    
-
     <div className={cn(
     "min-h-screen bg-background pb-24 overflow-x-hidden w-full max-w-full",
     accent)}>
@@ -335,8 +351,8 @@ const Index = () => {
             <div className="flex items-center gap-3">
               <button
                 onClick={handlePrivateSpaceClick}
-                className="w-10 h-10 rounded-xl bg-accent-custom flex items-center justify-center elevation-2 hover:elevation-3 transition-all"               
-               title="Private Space"
+                className="w-10 h-10 rounded-xl bg-accent-custom flex items-center justify-center elevation-2 hover:elevation-3 transition-all"
+                title="Private Space"
               >
                 <Layers className="w-5 h-5 text-white" />
               </button>
@@ -367,7 +383,7 @@ const Index = () => {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search"
+              placeholder="Search items..."
               className="pl-9"
             />
           </div>
@@ -375,7 +391,7 @@ const Index = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="shrink-0">
                 <ArrowUpDown className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Sort: {sortBy === "name" ? "Name" : sortBy === "rating" ? "Rating" : "Recent"}</span>
+                <span className="hidden sm:inline">Sort: {getSortLabel(sortBy)}</span>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -388,11 +404,14 @@ const Index = () => {
               <DropdownMenuItem onClick={() => setSortBy("rating")}>
                 Highest Rating
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setSortBy("favorite")}>
+                Favorite
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-                  </div>
+        </div>
 
-                          {/* Category Hover Board - Top position */}
+        {/* Category Hover Board - Top position */}
         {settings.hoverBoardPosition === "top" && (
           <CategoryHoverBoard
             categories={categories}
@@ -400,11 +419,13 @@ const Index = () => {
             onSelectCategory={setSelectedCategory}
             bookmarkCounts={bookmarkCounts}
             totalCount={bookmarks.filter((b) => !b.private).length}
+            showFavorites={showFavorites}
+            onToggleFavorites={handleToggleFavorites}
           />
         )}
 
-        {/* Type filter - Top Bar (hidden when Links category is selected) */}
-        {!categories.find((c) => c.id === selectedCategory && c.name === "Links") && (
+        {/* Type filter - Top Bar (hidden when URL category is selected or Favorites is active) */}
+        {!isURLCategorySelected && !showFavorites && (
           <div className="flex justify-center gap-8 mb-6">
             <button
               onClick={() => setSelectedType("all")}
@@ -440,13 +461,15 @@ const Index = () => {
         )}
 
        {/* Category Hover Board - Bottom position (default) */}
-        {settings.hoverBoardPosition !== "top" && (
+       {settings.hoverBoardPosition !== "top" && (
           <CategoryHoverBoard
             categories={categories}
             selectedCategory={selectedCategory}
             onSelectCategory={setSelectedCategory}
             bookmarkCounts={bookmarkCounts}
             totalCount={bookmarks.filter((b) => !b.private).length}
+            showFavorites={showFavorites}
+            onToggleFavorites={handleToggleFavorites}
           />
         )}
 
@@ -458,15 +481,13 @@ const Index = () => {
         {filteredBookmarks.length === 0 ? (
           <div className="text-center py-16">
             <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-secondary flex items-center justify-center elevation-1">
-              <Layers className="w-8 h-8 text-muted-foreground" />
+              {emptyState.icon}
             </div>
             <h2 className="text-lg font-semibold text-foreground mb-2">
-              {bookmarks.filter((b) => !b.private).length === 0 ? "Empty" : "No matches found"}
+              {emptyState.title}
             </h2>
             <p className="text-muted-foreground mb-4">
-              {bookmarks.filter((b) => !b.private).length === 0
-                ? "Add one now"
-                : "Try adjusting your search or filters"}
+              {emptyState.description}
             </p>
           </div>
         ) : (
@@ -488,10 +509,7 @@ const Index = () => {
 
       {/* Floating Add Button */}
       <FloatingAddButton
-        onClick={() => {
-          setEditingBookmark(null);
-          setBookmarkDialogOpen(true);
-        }}
+        onClick={handleAddClick}
       />
 
       {/* Dialogs */}
@@ -505,6 +523,19 @@ const Index = () => {
         categories={categories}
         onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
       />
+
+      {urlCategoryId && (
+        <URLBookmarkDialog
+          open={urlDialogOpen}
+          onOpenChange={(open) => {
+            setURLDialogOpen(open);
+            if (!open) setEditingBookmark(null);
+          }}
+          bookmark={editingBookmark}
+          urlCategoryId={urlCategoryId}
+          onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
+        />
+      )}
 
       <CategoryManager
         open={categoryManagerOpen}
