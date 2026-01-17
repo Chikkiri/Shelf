@@ -38,7 +38,7 @@ interface SettingsMenuProps {
   bookmarks: Bookmark[];
   categories: Category[];
   settings: AppSettings;
-  onImport: (bookmarks: Bookmark[], categories: Category[]) => void;
+  onImport: (bookmarks: Bookmark[], categories: Category[], persist?: boolean) => void;
   onOpenCategoryManager: () => void;
   onUpdateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void;
   onResetSettings: () => void;
@@ -82,7 +82,7 @@ export function SettingsMenu({
     toast.success("Backup exported successfully");
   };
 
-  const handleImport = () => {
+  const handleImport = (persistItems: boolean = false) => {
     const input = document.createElement("input");
     input.type = "file";
     input.accept = ".json";
@@ -94,7 +94,12 @@ export function SettingsMenu({
         try {
           const data = JSON.parse(ev.target?.result as string);
           if (data.bookmarks && data.categories) {
-            onImport(data.bookmarks, data.categories);
+            if (persistItems && settings.persistOnImport) {
+              // Merge with existing data
+              onImport(data.bookmarks, data.categories, true);
+            } else {
+              onImport(data.bookmarks, data.categories, false);
+            }
             toast.success(`Restored ${data.bookmarks.length} items and ${data.categories.length} categories`);
           } else {
             toast.error("Invalid backup file format");
@@ -125,7 +130,7 @@ export function SettingsMenu({
       setOpen(false);
       toast.success("Private Space data cleared");
     }
-  }; 
+  };
 
   const handlePinChange = (newPin: string, oldPin?: string) => {
     if (hasPin && oldPin) {
@@ -150,7 +155,7 @@ export function SettingsMenu({
           <Settings className="h-5 w-5" />
         </Button>
       </SheetTrigger>
-      <SheetContent className="w-full sm:max-w-md overflow-hidden flex flex-col bg-background text-foreground">
+      <SheetContent className="w-full sm:max-w-md overflow-hidden flex flex-col">
         <SheetHeader className="flex-shrink-0">
           <SheetTitle>Settings</SheetTitle>
         </SheetHeader>
@@ -200,7 +205,7 @@ export function SettingsMenu({
                   />
                   <input
                     type="color"
-                     value={settings.accentColor || "#3b82f6"}
+                    value={settings.accentColor || "#3b82f6"}
                     onChange={(e) => onUpdateSetting("accentColor", e.target.value)}
                     className="w-10 h-8 cursor-pointer border-0 p-0 bg-transparent"
                   />
@@ -328,10 +333,10 @@ export function SettingsMenu({
                 />
               </div>
               <div className="flex items-center justify-between">
-                <Label>Hide URL from "All"</Label>
+                <Label>Hide Others from "All"</Label>
                 <Switch
-                  checked={settings.hideURLFromAll}
-                  onCheckedChange={(v) => onUpdateSetting("hideURLFromAll", v)}
+                  checked={settings.hideOthersFromAll}
+                  onCheckedChange={(v) => onUpdateSetting("hideOthersFromAll", v)}
                 />
               </div>
             </div>
@@ -346,15 +351,24 @@ export function SettingsMenu({
               <Download className="h-4 w-4" />
               Backup & Restore
             </h3>
-            <div className="grid grid-cols-2 gap-2">
-              <Button variant="outline" onClick={handleExport}>
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </Button>
-              <Button variant="outline" onClick={handleImport}>
-                <Upload className="h-4 w-4 mr-2" />
-                Import
-              </Button>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label>Persist items on Import</Label>
+                <Switch
+                  checked={settings.persistOnImport}
+                  onCheckedChange={(v) => onUpdateSetting("persistOnImport", v)}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Button variant="outline" onClick={handleExport}>
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </Button>
+                <Button variant="outline" onClick={() => handleImport(settings.persistOnImport)}>
+                  <Upload className="h-4 w-4 mr-2" />
+                  Import
+                </Button>
+              </div>
             </div>
           </div>
 

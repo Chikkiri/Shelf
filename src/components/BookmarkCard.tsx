@@ -1,7 +1,6 @@
 import { ExternalLink, Globe, Heart, Pencil, Pin, Play, Share2, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
-import { StarRating } from "./StarRating";
 import { RatingDisplay } from "./RatingDisplay";
 import { CategoryBadge } from "./CategoryBadge";
 import { Button } from "@/components/ui/button";

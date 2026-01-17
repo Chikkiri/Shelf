@@ -1,14 +1,12 @@
 import { useState, useMemo } from "react";
-import { Search, ArrowUpDown, Layers, Heart, Link2 } from "lucide-react";
+import { Search, ArrowUpDown, Layers, Heart, MoreHorizontal } from "lucide-react";
 import { Bookmark, Category, DEFAULT_SETTINGS } from "@/types/bookmark";
-import { cn } from "@/lib/utils";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { usePrivateSpace } from "@/contexts/PrivateSpaceContext";
 import { CategoryHoverBoard } from "@/components/CategoryHoverBoard";
 import { BookmarkCard } from "@/components/BookmarkCard";
 import { BookmarkDialog } from "@/components/BookmarkDialog";
-import { URLBookmarkDialog } from "@/components/URLBookmarkDialog";
 import { CategoryManager } from "@/components/CategoryManager";
 import { SettingsMenu } from "@/components/SettingsMenu";
 import { FloatingAddButton } from "@/components/FloatingAddButton";
@@ -25,11 +23,11 @@ import {
 import { filterAndSortBookmarks, getSortLabel, SortOption, TypeFilter } from "@/utils/filterAndSort";
 
 const DEFAULT_CATEGORIES: Category[] = [
-  { id: "1", name: "Development", color: "blue" },
-  { id: "2", name: "Design", color: "purple" },
-  { id: "3", name: "Productivity", color: "green" },
-  { id: "4", name: "Entertainment", color: "pink" },
-  { id: "5", name: "URL", color: "orange" },
+  { id: "1", name: "Development", color: "blue", icon: "Code2", showAddButton: true },
+  { id: "2", name: "Design", color: "purple", icon: "Palette", showAddButton: true },
+  { id: "3", name: "Productivity", color: "green", icon: "Briefcase", showAddButton: true },
+  { id: "4", name: "Entertainment", color: "pink", icon: "Gamepad2", showAddButton: true },
+  { id: "5", name: "Others", color: "orange", icon: "MoreHorizontal", showAddButton: true },
 ];
 
 const Index = () => {
@@ -40,27 +38,21 @@ const Index = () => {
   
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedType, setSelectedType] = useState<TypeFilter>("all");  
+  const [selectedType, setSelectedType] = useState<TypeFilter>("all");
   const [sortBy, setSortBy] = useState<SortOption>("recent");
   const [showFavorites, setShowFavorites] = useState(false);
-
+  
   const [bookmarkDialogOpen, setBookmarkDialogOpen] = useState(false);
-  const [urlDialogOpen, setURLDialogOpen] = useState(false);
   const [categoryManagerOpen, setCategoryManagerOpen] = useState(false);
   const [editingBookmark, setEditingBookmark] = useState<Bookmark | null>(null);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
   const [showPrivateSpace, setShowPrivateSpace] = useState(false);
 
-  const [accent, setAccent] = useLocalStorage(
-  "shelf-accent",
-  "accent-blue"
-);
-
-  // Find the URL category ID
-  const urlCategoryId = useMemo(() => {
-    return categories.find((c) => c.name === "URL")?.id;
+  // Find the Others category ID
+  const othersCategoryId = useMemo(() => {
+    return categories.find((c) => c.name === "Others")?.id;
   }, [categories]);
-  
+
   // Count non-private bookmarks per category
   const bookmarkCounts = useMemo(() => {
     return bookmarks
@@ -74,8 +66,8 @@ const Index = () => {
       }, {} as Record<string, number>);
   }, [bookmarks]);
 
-  // Check if URL category is selected
-  const isURLCategorySelected = selectedCategory === urlCategoryId;
+  // Check if Others category is selected
+  const isOthersCategorySelected = selectedCategory === othersCategoryId;
 
   const filteredBookmarks = useMemo(() => {
     return filterAndSortBookmarks({
@@ -84,12 +76,12 @@ const Index = () => {
       selectedCategory,
       selectedType,
       sortBy,
-      hideURLFromAll: settings.hideURLFromAll,
-      urlCategoryId,
+      hideOthersFromAll: settings.hideOthersFromAll,
+      othersCategoryId,
       isPrivateSpace: false,
       showFavorites,
     });
-  }, [bookmarks, search, selectedCategory, selectedType, sortBy, settings.hideURLFromAll, urlCategoryId, showFavorites]);
+  }, [bookmarks, search, selectedCategory, selectedType, sortBy, settings.hideOthersFromAll, othersCategoryId, showFavorites]);
 
   const handleAddBookmark = (data: Omit<Bookmark, "id" | "createdAt">) => {
     const newBookmark: Bookmark = {
@@ -124,61 +116,78 @@ const Index = () => {
 
   const openEditDialog = (bookmark: Bookmark) => {
     setEditingBookmark(bookmark);
-    // Check if this is a URL item
-    const isURLItem = bookmark.categoryIds?.includes(urlCategoryId || "") || bookmark.categoryId === urlCategoryId;
-    if (isURLItem && urlCategoryId) {
-      setURLDialogOpen(true);
-    } else {
-      setBookmarkDialogOpen(true);
-    }
+    setBookmarkDialogOpen(true);
   };
 
   const handleAddClick = () => {
     setEditingBookmark(null);
-    // Use URL dialog when URL category is selected
-    if (isURLCategorySelected && urlCategoryId) {
-      setURLDialogOpen(true);
-    } else {
-      setBookmarkDialogOpen(true);
-    }
+    setBookmarkDialogOpen(true);
   };
 
-  const handleAddCategory = (name: string, color: string) => {
+  const handleAddCategory = (name: string, color: string, icon?: string, showAddButton?: boolean) => {
     const newCategory: Category = {
       id: crypto.randomUUID(),
       name,
       color,
+      icon,
+      showAddButton: showAddButton !== false,
     };
     setCategories((prev) => [...prev, newCategory]);
   };
 
-  const handleUpdateCategory = (id: string, name: string, color: string) => {
+  const handleUpdateCategory = (id: string, name: string, color: string, icon?: string, showAddButton?: boolean) => {
     setCategories((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, name, color } : c))
+      prev.map((c) => (c.id === id ? { ...c, name, color, icon, showAddButton: showAddButton !== false } : c))
     );
   };
 
   const handleDeleteCategory = (id: string) => {
-    setCategories((prev) => prev.filter((c) => c.id !== id));
-
-    // Remove category from bookmarks (but keep bookmark if it has other categories)
+    // Find or create Others category for reassignment
+    let othersId = categories.find((c) => c.name === "Others")?.id;
+    if (!othersId) {
+      othersId = crypto.randomUUID();
+      setCategories((prev) => [...prev.filter((c) => c.id !== id), {
+        id: othersId!,
+        name: "Others",
+        color: "orange",
+        icon: "MoreHorizontal",
+        showAddButton: true,
+      }]);
+    } else {
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+    }
+    
+    // Reassign bookmarks to Others
     setBookmarks((prev) =>
       prev.map((b) => {
         const ids = b.categoryIds || [b.categoryId];
-        const newIds = ids.filter((cId) => cId !== id);
-        if (newIds.length === 0) return b; // Keep at least one category
-        return { ...b, categoryIds: newIds, categoryId: newIds[0] };
-      }).filter((b) => {
-        const ids = b.categoryIds || [b.categoryId];
-        return ids.length > 0 && ids.some((cId) => cId !== id);
+        if (ids.includes(id)) {
+          const newIds = ids.filter((cId) => cId !== id);
+          if (newIds.length === 0) {
+            newIds.push(othersId!);
+          }
+          return { ...b, categoryIds: newIds, categoryId: newIds[0] };
+        }
+        return b;
       })
     );
     if (selectedCategory === id) setSelectedCategory(null);
   };
 
-  const handleImportData = (importedBookmarks: Bookmark[], importedCategories: Category[]) => {
-    setBookmarks(importedBookmarks);
-    setCategories(importedCategories);
+  const handleImportData = (importedBookmarks: Bookmark[], importedCategories: Category[], persist?: boolean) => {
+    if (persist) {
+      // Merge with existing - avoid duplicates by ID
+      const existingIds = new Set(bookmarks.map(b => b.id));
+      const newBookmarks = importedBookmarks.filter(b => !existingIds.has(b.id));
+      setBookmarks((prev) => [...prev, ...newBookmarks]);
+      
+      const existingCatIds = new Set(categories.map(c => c.id));
+      const newCategories = importedCategories.filter(c => !existingCatIds.has(c.id));
+      setCategories((prev) => [...prev, ...newCategories]);
+    } else {
+      setBookmarks(importedBookmarks);
+      setCategories(importedCategories);
+    }
   };
 
   const handleClearData = () => {
@@ -260,11 +269,11 @@ const Index = () => {
       };
     }
     
-    if (isURLCategorySelected) {
+    if (isOthersCategorySelected) {
       return {
-        icon: <Link2 className="w-8 h-8 text-muted-foreground" />,
-        title: "No URL yet",
-        description: "Add your first URL item to get started",
+        icon: <MoreHorizontal className="w-8 h-8 text-muted-foreground" />,
+        title: "No items in Others yet",
+        description: "Add your first item to Others to get started",
       };
     }
     
@@ -298,6 +307,7 @@ const Index = () => {
         {/* Floating Add Button */}
         <FloatingAddButton
           onClick={handleAddClick}
+          isPrivateSpace={true}
         />
 
         {/* Dialogs */}
@@ -311,19 +321,6 @@ const Index = () => {
           categories={categories}
           onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
         />
-
-        {urlCategoryId && (
-        <URLBookmarkDialog
-          open={urlDialogOpen}
-          onOpenChange={(open) => {
-            setURLDialogOpen(open);
-            if (!open) setEditingBookmark(null);
-          }}
-          bookmark={editingBookmark}
-          urlCategoryId={urlCategoryId}
-          onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
-        />
-      )}
 
         <CategoryManager
           open={categoryManagerOpen}
@@ -339,11 +336,9 @@ const Index = () => {
   }
 
   const emptyState = getEmptyState();
-  return (
-    <div className={cn(
-    "min-h-screen bg-background pb-24 overflow-x-hidden w-full max-w-full",
-    accent)}>
 
+  return (
+    <div className="min-h-screen bg-background pb-24 overflow-x-hidden w-full max-w-full">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/80 backdrop-blur-sm border-b border-border">
         <div className="container py-4">
@@ -424,8 +419,8 @@ const Index = () => {
           />
         )}
 
-        {/* Type filter - Top Bar (hidden when URL category is selected or Favorites is active) */}
-        {!isURLCategorySelected && !showFavorites && (
+        {/* Type filter - Top Bar */}
+        {!showFavorites && (
           <div className="flex justify-center gap-8 mb-6">
             <button
               onClick={() => setSelectedType("all")}
@@ -457,11 +452,21 @@ const Index = () => {
             >
               Application
             </button>
+            <button
+              onClick={() => setSelectedType("url")}
+              className={`text-sm font-medium transition-colors ${
+                selectedType === "url"
+                  ? "text-accent-custom"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              URL
+            </button>
           </div>
         )}
 
-       {/* Category Hover Board - Bottom position (default) */}
-       {settings.hoverBoardPosition !== "top" && (
+        {/* Category Hover Board - Bottom position (default) */}
+        {settings.hoverBoardPosition !== "top" && (
           <CategoryHoverBoard
             categories={categories}
             selectedCategory={selectedCategory}
@@ -472,10 +477,6 @@ const Index = () => {
             onToggleFavorites={handleToggleFavorites}
           />
         )}
-
-        <div className={cn("h-full", accent)}>
-        {/* Main Space */}
-        </div>
 
         {/* Bookmarks grid */}
         {filteredBookmarks.length === 0 ? (
@@ -523,19 +524,6 @@ const Index = () => {
         categories={categories}
         onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
       />
-
-      {urlCategoryId && (
-        <URLBookmarkDialog
-          open={urlDialogOpen}
-          onOpenChange={(open) => {
-            setURLDialogOpen(open);
-            if (!open) setEditingBookmark(null);
-          }}
-          bookmark={editingBookmark}
-          urlCategoryId={urlCategoryId}
-          onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
-        />
-      )}
 
       <CategoryManager
         open={categoryManagerOpen}

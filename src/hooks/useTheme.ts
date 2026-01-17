@@ -2,14 +2,16 @@ import { useLayoutEffect } from "react";
 import { ThemeMode } from "@/types/bookmark";
 
 export function useTheme(themeMode: ThemeMode) {
+  // Use useLayoutEffect to apply theme before paint to prevent flash
   useLayoutEffect(() => {
-    const root = document.documentElement;
-
     const applyTheme = (isDark: boolean) => {
+      const root = document.documentElement;
       if (isDark) {
         root.classList.add("dark");
+        root.classList.remove("light");
       } else {
         root.classList.remove("dark");
+        root.classList.add("light");
       }
     };
 
@@ -19,7 +21,6 @@ export function useTheme(themeMode: ThemeMode) {
 
       const handler = (e: MediaQueryListEvent) => applyTheme(e.matches);
       mediaQuery.addEventListener("change", handler);
-
       return () => mediaQuery.removeEventListener("change", handler);
     } else {
       applyTheme(themeMode === "dark");

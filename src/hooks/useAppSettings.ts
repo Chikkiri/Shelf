@@ -9,12 +9,11 @@ export function useAppSettings() {
   // Apply theme mode using separate hook
   useTheme(settings.themeMode);
 
-  //Apply accent color to CSS variable (Main UI only)
+  // Apply accent color to CSS variable (Main UI only)
   useEffect(() => {
     const root = document.documentElement;
     const accentColor = settings.accentColor || DEFAULT_SETTINGS.accentColor;
-    root.style.setProperty("--accent-hex",accentColor);
-  
+    root.style.setProperty("--accent-hex", accentColor);
   }, [settings.accentColor]);
 
   const updateSetting = useCallback(<K extends keyof AppSettings>(key: K, value: AppSettings[K]) => {

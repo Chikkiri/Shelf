@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import './styles/accent.css';
 
 @tailwind base;
@@ -8,45 +9,6 @@
 
 @layer base {
   :root {
-
-    --accent: 59 130 246; /* default (blue) */
-}
-
-[data-accent="grey"] {
-  --accent: 156 163 175;
-}
-
-[data-accent="green"] {
-  --accent: 34 197 94;
-}
-
-[data-accent="red"] {
-  --accent: 239 68 68;
-
-      /* ===== Accent presets (Main Space only) ===== */
-  .accent-blue {
-    --accent: 217 91% 60%;
-  }
-
-  .accent-green {
-    --accent: 142 76% 36%;
-  }
-
-  .accent-purple {
-    --accent: 262 83% 58%;
-  }
-
-  .accent-orange {
-    --accent: 25 95% 53%;
-  }
-
-  .accent-pink {
-    --accent: 330 81% 60%;
-  }
-
-    --accent: 217 91% 60%; /*blue*/
-    --accent-foreground: 0 0% 100%;
-
     --background: 0 0% 98%;
     --foreground: 240 10% 10%;
 
@@ -118,6 +80,9 @@
     --muted: 223 47% 11%;
     --muted-foreground: 215 20% 65%;
 
+    --accent: 223 47% 15%;
+    --accent-foreground: 213 31% 91%;
+
     --destructive: 0 63% 55%;
     --destructive-foreground: 0 0% 100%;
 
@@ -146,6 +111,7 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
     overflow-x: hidden;
     max-width: 100vw;
     width: 100%;
@@ -173,7 +139,7 @@
   
   .elevation-3 {
     box-shadow: var(--elevation-3);
-    }
+  }
 
 }
 

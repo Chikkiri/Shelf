@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, ArrowUpDown, Lock, ArrowLeft, Heart, Link2 } from "lucide-react";
+import { Search, ArrowUpDown, Lock, ArrowLeft, Heart, MoreHorizontal } from "lucide-react";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
 import { BookmarkCard } from "@/components/BookmarkCard";
 import { CategoryHoverBoard } from "@/components/CategoryHoverBoard";
@@ -55,9 +55,9 @@ export function PrivateSpace({
     };
   }, []);
 
-  // Find the URL category ID
-  const urlCategoryId = useMemo(() => {
-    return categories.find((c) => c.name === "URL")?.id;
+  // Find the Others category ID
+  const othersCategoryId = useMemo(() => {
+    return categories.find((c) => c.name === "Others")?.id;
   }, [categories]);
 
   // Get only private items
@@ -76,8 +76,8 @@ export function PrivateSpace({
     }, {} as Record<string, number>);
   }, [privateBookmarks]);
 
- // Check if URL category is selected
-  const isURLCategorySelected = selectedCategory === urlCategoryId;
+  // Check if Others category is selected
+  const isOthersCategorySelected = selectedCategory === othersCategoryId;
 
   const filteredBookmarks = useMemo(() => {
     return filterAndSortBookmarks({
@@ -86,17 +86,17 @@ export function PrivateSpace({
       selectedCategory,
       selectedType,
       sortBy,
-      hideURLFromAll: settings.hideURLFromAll,
-      urlCategoryId,
+      hideOthersFromAll: settings.hideOthersFromAll,
+      othersCategoryId,
       isPrivateSpace: true,
       showFavorites,
     });
-  }, [bookmarks, search, selectedCategory, selectedType, sortBy, settings.hideURLFromAll, urlCategoryId, showFavorites]);
+  }, [bookmarks, search, selectedCategory, selectedType, sortBy, settings.hideOthersFromAll, othersCategoryId, showFavorites]);
 
   const handleToggleFavorites = () => {
     setShowFavorites((prev) => !prev);
   };
-  
+
   // Grid classes based on layout settings
   const getGridClasses = () => {
     const gapClass = settings.cardSize === "small" ? "gap-3" : settings.cardSize === "large" ? "gap-5" : "gap-4";
@@ -133,11 +133,11 @@ export function PrivateSpace({
       };
     }
     
-    if (isURLCategorySelected) {
+    if (isOthersCategorySelected) {
       return {
-        icon: <Link2 className="w-8 h-8 private-space-muted" />,
-        title: "No URL items yet",
-        description: "Add your first private URL item to get started",
+        icon: <MoreHorizontal className="w-8 h-8 private-space-muted" />,
+        title: "No items in Others yet",
+        description: "Add your first private item to Others to get started",
       };
     }
     
@@ -194,7 +194,7 @@ export function PrivateSpace({
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search"
+              placeholder="Search private items..."
               className="pl-9 private-space-input"
             />
           </div>
@@ -214,15 +214,15 @@ export function PrivateSpace({
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortBy("rating")}>
                 Highest Rating
-                 </DropdownMenuItem>
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortBy("favorite")}>
                 Favorite
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-                  </div>
+        </div>
 
-{/* Category Hover Board - Top position */}
+        {/* Category Hover Board - Top position */}
         {settings.hoverBoardPosition === "top" && (
           <CategoryHoverBoard
             categories={categories}
@@ -236,8 +236,8 @@ export function PrivateSpace({
           />
         )}
 
-        {/* Type filter - Top Bar (hidden when URL category is selected or Favorites is active) */}
-        {!isURLCategorySelected && !showFavorites && (
+        {/* Type filter - Top Bar */}
+        {!showFavorites && (
           <div className="flex justify-center gap-8 mb-6">
             <button
               onClick={() => setSelectedType("all")}
@@ -269,6 +269,16 @@ export function PrivateSpace({
             >
               Application
             </button>
+            <button
+              onClick={() => setSelectedType("url")}
+              className={`text-sm font-medium transition-colors ${
+                selectedType === "url"
+                  ? "private-space-text-accent"
+                  : "private-space-muted hover:private-space-text"
+              }`}
+            >
+              URL
+            </button>
           </div>
         )}
 
@@ -296,7 +306,7 @@ export function PrivateSpace({
               {emptyState.title}
             </h2>
             <p className="private-space-muted mb-4">
-             {emptyState.description}
+              {emptyState.description}
             </p>
           </div>
         ) : (

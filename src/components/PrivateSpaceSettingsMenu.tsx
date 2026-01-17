@@ -180,7 +180,7 @@ export function PrivateSpaceSettingsMenu({
                 <Switch
                   checked={settings.showDescriptions}
                   onCheckedChange={(v) => onUpdateSetting("showDescriptions", v)}
-                neutral
+                  neutral
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -188,7 +188,7 @@ export function PrivateSpaceSettingsMenu({
                 <Switch
                   checked={settings.showNotes}
                   onCheckedChange={(v) => onUpdateSetting("showNotes", v)}
-                neutral
+                  neutral
                 />
               </div>
             </div>
@@ -196,7 +196,6 @@ export function PrivateSpaceSettingsMenu({
 
           <Separator />
 
-          
           {/* Reset Section */}
           <div className="space-y-4">
             <h3 className="text-sm font-medium flex items-center gap-2 text-destructive">

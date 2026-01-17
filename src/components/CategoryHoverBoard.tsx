@@ -1,5 +1,6 @@
-import { Layers, Briefcase, Palette, Gamepad2, Code2, Link2, Heart } from "lucide-react";
+import { Layers } from "lucide-react";
 import { Category } from "@/types/bookmark";
+import { renderCategoryIcon } from "@/utils/categoryIcons";
 
 interface CategoryHoverBoardProps {
   categories: Category[];
@@ -12,14 +13,6 @@ interface CategoryHoverBoardProps {
   onToggleFavorites?: () => void;
 }
 
-const CATEGORY_ICONS: Record<string, React.ReactNode> = {
-  "Productivity": <Briefcase className="w-5 h-5" />,
-  "Design": <Palette className="w-5 h-5" />,
-  "Entertainment": <Gamepad2 className="w-5 h-5" />,
-   "URL": <Link2 className="w-5 h-5" />,
-  "Development": <Code2 className="w-5 h-5" />,
-};
-
 export function CategoryHoverBoard({
   categories,
   selectedCategory,
@@ -30,12 +23,6 @@ export function CategoryHoverBoard({
   showFavorites = false,
   onToggleFavorites,
 }: CategoryHoverBoardProps) {
- // Filter to only show the specified categories in order
-  const allowedCategories = ["Productivity", "Design", "Entertainment", "URL", "Development"];
-  const filteredCategories = allowedCategories
-    .map((name) => categories.find((cat) => cat.name === name))
-    .filter((cat): cat is Category => cat !== undefined);
-
   const baseItemClasses = isPrivateSpace
     ? "private-space-chip"
     : "bg-secondary text-secondary-foreground hover:bg-secondary/80";
@@ -44,19 +31,12 @@ export function CategoryHoverBoard({
     ? "private-space-chip-active"
     : "bg-accent-custom text-white";
 
-    const handleCategoryClick = (categoryId: string | null) => {
+  const handleCategoryClick = (categoryId: string | null) => {
     // Reset favorites when selecting a category
     if (showFavorites && onToggleFavorites) {
       onToggleFavorites();
     }
     onSelectCategory(categoryId);
-  };
-
-  const handleFavoritesClick = () => {
-    if (onToggleFavorites) {
-      onSelectCategory(null); // Reset category when selecting favorites
-      onToggleFavorites();
-    }
   };
 
   return (
@@ -73,8 +53,8 @@ export function CategoryHoverBoard({
           <span className="text-xs font-medium hidden sm:block">All</span>
         </button>
 
-        {/* Category items */}
-        {filteredCategories.map((cat) => (
+        {/* Category items - dynamically rendered */}
+        {categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => handleCategoryClick(cat.id)}
@@ -82,7 +62,7 @@ export function CategoryHoverBoard({
               selectedCategory === cat.id && !showFavorites ? activeItemClasses : baseItemClasses
             }`}
           >
-            {CATEGORY_ICONS[cat.name] || <Layers className="w-5 h-5" />}
+            {renderCategoryIcon(cat.name, cat.icon)}
             <span className="text-xs font-medium hidden sm:block">{cat.name}</span>
           </button>
         ))}

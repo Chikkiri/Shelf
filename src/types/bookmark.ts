@@ -1,4 +1,4 @@
-export type BookmarkType = "website" | "app";
+export type BookmarkType = "website" | "app" | "url";
 
 export interface Bookmark {
   id: string;
@@ -21,6 +21,8 @@ export interface Category {
   id: string;
   name: string;
   color: string;
+  icon?: string; // Icon name from lucide-react
+  showAddButton?: boolean; // Whether to show add button for this category
 }
 
 export type ThemeMode = "light" | "dark" | "auto";
@@ -36,8 +38,10 @@ export interface AppSettings {
   showNotes: boolean;
   layoutView: LayoutView;
   gridColumns: GridColumns;
+  accentColor: string; // HEX format: "#3b82f6"
   hoverBoardPosition: HoverBoardPosition;
-  hideURLFromAll: boolean;
+  hideOthersFromAll: boolean; // Hide "Others" category from "All" view
+  persistOnImport: boolean; // Persist existing items when importing
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
@@ -47,6 +51,11 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showNotes: true,
   layoutView: "grid",
   gridColumns: "auto",
+  accentColor: "#3b82f6", // Default blue
   hoverBoardPosition: "bottom",
-  hideURLFromAll: false,
+  hideOthersFromAll: false,
+  persistOnImport: false,
 };
+
+// Others category ID - fixed ID for migration purposes
+export const OTHERS_CATEGORY_ID = "others-default";

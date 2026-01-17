@@ -136,6 +136,7 @@ export function BookmarkDialog({
               <SelectContent>
                 <SelectItem value="website">Website</SelectItem>
                 <SelectItem value="app">App</SelectItem>
+                <SelectItem value="url">URL</SelectItem>
               </SelectContent>
             </Select>
           </div>

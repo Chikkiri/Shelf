@@ -1,7 +1,7 @@
 import { Bookmark } from "@/types/bookmark";
 
 export type SortOption = "name" | "rating" | "recent" | "favorite";
-export type TypeFilter = "all" | "website" | "app";
+export type TypeFilter = "all" | "website" | "app" | "url";
 
 interface FilterSortOptions {
   bookmarks: Bookmark[];
@@ -9,8 +9,8 @@ interface FilterSortOptions {
   selectedCategory: string | null;
   selectedType: TypeFilter;
   sortBy: SortOption;
-  hideURLFromAll: boolean;
-  urlCategoryId: string | undefined;
+  hideOthersFromAll: boolean;
+  othersCategoryId: string | undefined;
   isPrivateSpace: boolean;
   showFavorites?: boolean;
 }
@@ -21,8 +21,8 @@ export function filterAndSortBookmarks({
   selectedCategory,
   selectedType,
   sortBy,
-  hideURLFromAll,
-  urlCategoryId,
+  hideOthersFromAll,
+  othersCategoryId,
   isPrivateSpace,
   showFavorites = false,
 }: FilterSortOptions): Bookmark[] {
@@ -31,11 +31,11 @@ export function filterAndSortBookmarks({
     ? bookmarks.filter((b) => b.private)
     : bookmarks.filter((b) => !b.private);
 
-  // Step 2: Hide URL items from "All" if setting is enabled and no category is selected
-  if (hideURLFromAll && !selectedCategory && urlCategoryId && !showFavorites) {
+  // Step 2: Hide Others items from "All" if setting is enabled and no category is selected
+  if (hideOthersFromAll && !selectedCategory && othersCategoryId && !showFavorites) {
     result = result.filter((b) => {
       const ids = b.categoryIds || [b.categoryId];
-      return !ids.includes(urlCategoryId);
+      return !ids.includes(othersCategoryId);
     });
   }
 
@@ -45,9 +45,8 @@ export function filterAndSortBookmarks({
     result = result.filter((b) => b.name.toLowerCase().includes(query));
   }
 
-  // Step 4: Type filter (skip when URL category is selected)
-  const isURLCategorySelected = selectedCategory === urlCategoryId;
-  if (selectedType !== "all" && !isURLCategorySelected) {
+  // Step 4: Type filter (includes new "url" type)
+  if (selectedType !== "all") {
     result = result.filter((b) => b.type === selectedType);
   }
 
