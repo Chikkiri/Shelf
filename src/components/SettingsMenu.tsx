@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Settings, Moon, Sun, Monitor, Download, Upload, FolderOpen, LayoutGrid, Type, RotateCcw, Trash2, List, Grid3X3, Lock, KeyRound, Palette, ArrowUp, ArrowDown } from "lucide-react";
+import { Settings, Moon, Sun, Monitor, Download, Upload, FolderOpen, LayoutGrid, Type, RotateCcw, Trash2, List, Grid3X3, Lock, KeyRound, Palette, ArrowUp, ArrowDown, Pencil } from "lucide-react";
 import { Bookmark, Category, AppSettings, ThemeMode, CardSize, LayoutView, GridColumns, HoverBoardPosition } from "@/types/bookmark";
 import { usePrivateSpace } from "@/contexts/PrivateSpaceContext";
 import { PinDialog } from "@/components/PinDialog";
@@ -340,6 +340,27 @@ export function SettingsMenu({
                 />
               </div>
             </div>
+            </div>
+
+          <Separator />
+
+          {/* Category Management */}
+          <div className="space-y-4">
+            <h3 className="text-sm font-medium flex items-center gap-2">
+              <FolderOpen className="h-4 w-4" />
+              Categories
+            </h3>
+            <Button
+              variant="outline"
+              className="w-full justify-start"
+              onClick={() => {
+                onOpenCategoryManager();
+                setOpen(false);
+              }}
+            >
+              <Pencil className="h-4 w-4 mr-2" />
+              Edit Categories
+            </Button>
           </div>
 
           <Separator />

@@ -41,7 +41,7 @@ export function BookmarkDialog({
   const [url, setUrl] = useState("");
   const [categoryIds, setCategoryIds] = useState<string[]>([]);
   const [description, setDescription] = useState("");
-  const [rating, setRating] = useState(3);
+  const [rating, setRating] = useState(0);
   const [notes, setNotes] = useState("");
   const [type, setType] = useState<BookmarkType>("website");
   const [playStoreUrl, setPlayStoreUrl] = useState("");
@@ -68,7 +68,7 @@ export function BookmarkDialog({
       setUrl("");
       setCategoryIds(categories[0]?.id ? [categories[0].id] : []);
       setDescription("");
-      setRating(3);
+      setRating(0);
       setNotes("");
       setType("website");
       setPlayStoreUrl("");
@@ -202,7 +202,7 @@ export function BookmarkDialog({
 
           <div className="space-y-2">
             <Label>Rating</Label>
-            <StarRating rating={rating} onRatingChange={setRating} />
+            <StarRating rating={rating} onRatingChange={setRating} allowClear />
           </div>
 
           <div className="space-y-2">
