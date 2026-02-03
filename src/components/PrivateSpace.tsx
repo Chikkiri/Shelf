@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { filterAndSortBookmarks, getSortLabel, SortOption, TypeFilter } from "@/utils/filterAndSort";
+import { getTypeLabel } from "@/utils/typeLabels";
 
 interface PrivateSpaceProps {
   bookmarks: Bookmark[];
@@ -257,7 +258,7 @@ export function PrivateSpace({
                   : "private-space-muted hover:private-space-text"
               }`}
             >
-              Website
+              {getTypeLabel("website")}
             </button>
             <button
               onClick={() => setSelectedType("app")}
@@ -267,7 +268,7 @@ export function PrivateSpace({
                   : "private-space-muted hover:private-space-text"
               }`}
             >
-              Application
+              {getTypeLabel("app")}
             </button>
             <button
               onClick={() => setSelectedType("url")}
@@ -277,7 +278,7 @@ export function PrivateSpace({
                   : "private-space-muted hover:private-space-text"
               }`}
             >
-              URL
+              {getTypeLabel("url")}
             </button>
           </div>
         )}

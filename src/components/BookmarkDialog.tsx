@@ -14,13 +14,8 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { BOOKMARK_TYPES, getTypeLabel } from "@/utils/typeLabels";
+import { FolderOpen } from "lucide-react";
 
 interface BookmarkDialogProps {
   open: boolean;
@@ -28,6 +23,8 @@ interface BookmarkDialogProps {
   bookmark?: Bookmark | null;
   categories: Category[];
   onSave: (bookmark: Omit<Bookmark, "id" | "createdAt">) => void;
+parentCategoryName?: string; // Display parent folder name when adding inside a sub-category
+  isPrivateSpace?: boolean;
 }
 
 export function BookmarkDialog({
@@ -36,6 +33,8 @@ export function BookmarkDialog({
   bookmark,
   categories,
   onSave,
+  parentCategoryName,
+  isPrivateSpace = false,
 }: BookmarkDialogProps) {
   const [name, setName] = useState("");
   const [url, setUrl] = useState("");
@@ -44,7 +43,6 @@ export function BookmarkDialog({
   const [rating, setRating] = useState(0);
   const [notes, setNotes] = useState("");
   const [type, setType] = useState<BookmarkType>("website");
-  const [playStoreUrl, setPlayStoreUrl] = useState("");
   const [pinned, setPinned] = useState(false);
   const [favorite, setFavorite] = useState(false);
   const [isPrivate, setIsPrivate] = useState(false);
@@ -59,7 +57,6 @@ export function BookmarkDialog({
       setRating(bookmark.rating);
       setNotes(bookmark.notes);
       setType(bookmark.type || "website");
-      setPlayStoreUrl(bookmark.playStoreUrl || "");
       setPinned(bookmark.pinned || false);
       setFavorite(bookmark.favorite || false);
       setIsPrivate(bookmark.private || false);
@@ -71,7 +68,6 @@ export function BookmarkDialog({
       setRating(0);
       setNotes("");
       setType("website");
-      setPlayStoreUrl("");
       setPinned(false);
       setFavorite(false);
       setIsPrivate(false);
@@ -84,6 +80,10 @@ export function BookmarkDialog({
     } else {
       setCategoryIds((prev) => prev.filter((id) => id !== categoryId));
     }
+  };
+
+  const handleTypeToggle = (selectedType: BookmarkType) => {
+    setType(selectedType);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -99,13 +99,16 @@ export function BookmarkDialog({
       rating,
       notes: notes.trim(),
       type,
-      playStoreUrl: type === "app" ? playStoreUrl.trim() : undefined,
       pinned,
       favorite,
       private: isPrivate,
     });
     onOpenChange(false);
   };
+
+    // Get parent categories (no parentId) for display
+  const parentCategories = categories.filter((c) => !c.parentId);
+  const subCategories = categories.filter((c) => c.parentId);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -114,6 +117,15 @@ export function BookmarkDialog({
           <DialogTitle>
             {bookmark ? "Edit Item" : "Add Item"}
           </DialogTitle>
+        {/* Show parent folder name when adding inside a sub-category */}
+          {parentCategoryName && (
+            <div className={`flex items-center gap-2 mt-2 px-3 py-2 rounded-md ${isPrivateSpace ? 'bg-secondary/50' : 'bg-accent/10'}`}>
+              <FolderOpen className={`w-4 h-4 ${isPrivateSpace ? 'text-muted-foreground' : 'text-accent-custom'}`} />
+              <span className="text-sm text-muted-foreground">
+                Adding to: <span className={`font-medium ${isPrivateSpace ? 'text-foreground' : 'text-accent-custom'}`}>{parentCategoryName}</span>
+              </span>
+            </div>
+          )}
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -128,21 +140,28 @@ export function BookmarkDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="type">Type</Label>
-            <Select value={type} onValueChange={(v) => setType(v as BookmarkType)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="website">Website</SelectItem>
-                <SelectItem value="app">App</SelectItem>
-                <SelectItem value="url">URL</SelectItem>
-              </SelectContent>
-            </Select>
+            <Label>Type</Label>
+            <div className="flex flex-wrap gap-3 p-2 border rounded-lg bg-background">
+              {BOOKMARK_TYPES.map((t) => (
+                <div key={t} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`type-${t}`}
+                    checked={type === t}
+                    onCheckedChange={() => handleTypeToggle(t)}
+                  />
+                  <label
+                    htmlFor={`type-${t}`}
+                    className="text-sm font-medium leading-none cursor-pointer"
+                  >
+                    {getTypeLabel(t)}
+                  </label>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="url">{type === "app" ? "Website URL" : "URL"}</Label>
+            <Label htmlFor="url">URL</Label>
             <Input
               id="url"
               type="url"
@@ -153,23 +172,11 @@ export function BookmarkDialog({
             />
           </div>
 
-          {type === "app" && (
-            <div className="space-y-2">
-              <Label htmlFor="playStoreUrl">Play Store URL (optional)</Label>
-              <Input
-                id="playStoreUrl"
-                type="url"
-                value={playStoreUrl}
-                onChange={(e) => setPlayStoreUrl(e.target.value)}
-                placeholder="https://play.google.com/store/apps/..."
-              />
-            </div>
-          )}
-
           <div className="space-y-2">
             <Label>Categories (select one or more)</Label>
             <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 border rounded-lg">
-              {categories.map((cat) => (
+              {/* Parent categories */}
+              {parentCategories.map((cat) => (
                 <div key={cat.id} className="flex items-center space-x-2">
                   <Checkbox
                     id={`cat-${cat.id}`}
@@ -184,6 +191,25 @@ export function BookmarkDialog({
                   </label>
                 </div>
               ))}
+            {/* Sub-categories with indent */}
+              {subCategories.map((cat) => {
+                const parent = categories.find((c) => c.id === cat.parentId);
+                return (
+                  <div key={cat.id} className="flex items-center space-x-2 pl-4">
+                    <Checkbox
+                      id={`cat-${cat.id}`}
+                      checked={categoryIds.includes(cat.id)}
+                      onCheckedChange={(checked) => handleCategoryToggle(cat.id, checked as boolean)}
+                    />
+                    <label
+                      htmlFor={`cat-${cat.id}`}
+                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-muted-foreground"
+                    >
+                      {parent ? `${parent.name} / ` : ""}{cat.name}
+                    </label>
+                  </div>
+                );
+              })}
             </div>
             {categoryIds.length === 0 && (
               <p className="text-xs text-destructive">Select at least one category</p>

@@ -21,6 +21,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { filterAndSortBookmarks, getSortLabel, SortOption, TypeFilter } from "@/utils/filterAndSort";
+import { getTypeLabel } from "@/utils/typeLabels";
 
 const DEFAULT_CATEGORIES: Category[] = [
   { id: "1", name: "Development", color: "blue", icon: "Code2", showAddButton: true },
@@ -124,13 +125,14 @@ const Index = () => {
     setBookmarkDialogOpen(true);
   };
 
-  const handleAddCategory = (name: string, color: string, icon?: string, showAddButton?: boolean) => {
+  const handleAddCategory = (name: string, color: string, icon?: string, showAddButton?: boolean, parentId?: string) => {
     const newCategory: Category = {
       id: crypto.randomUUID(),
       name,
       color,
       icon,
       showAddButton: showAddButton !== false,
+    parentId,
     };
     setCategories((prev) => [...prev, newCategory]);
   };
@@ -142,11 +144,15 @@ const Index = () => {
   };
 
   const handleDeleteCategory = (id: string) => {
+   // Find all sub-categories that should also be deleted
+    const subCategoryIds = categories.filter((c) => c.parentId === id).map((c) => c.id);
+    const allIdsToDelete = [id, ...subCategoryIds];
+    
     // Find or create Others category for reassignment
-    let othersId = categories.find((c) => c.name === "Others")?.id;
+    let othersId = categories.find((c) => c.name === "Others" && !c.parentId)?.id;
     if (!othersId) {
       othersId = crypto.randomUUID();
-      setCategories((prev) => [...prev.filter((c) => c.id !== id), {
+      setCategories((prev) => [...prev.filter((c) => !allIdsToDelete.includes(c.id)), {
         id: othersId!,
         name: "Others",
         color: "orange",
@@ -154,15 +160,16 @@ const Index = () => {
         showAddButton: true,
       }]);
     } else {
-      setCategories((prev) => prev.filter((c) => c.id !== id));
+      setCategories((prev) => prev.filter((c) => !allIdsToDelete.includes(c.id)));
     }
     
     // Reassign bookmarks to Others
     setBookmarks((prev) =>
       prev.map((b) => {
         const ids = b.categoryIds || [b.categoryId];
-        if (ids.includes(id)) {
-          const newIds = ids.filter((cId) => cId !== id);
+        const hasDeletedCategory = ids.some((cId) => allIdsToDelete.includes(cId));
+        if (hasDeletedCategory) {
+          const newIds = ids.filter((cId) => !allIdsToDelete.includes(cId));
           if (newIds.length === 0) {
             newIds.push(othersId!);
           }
@@ -171,7 +178,7 @@ const Index = () => {
         return b;
       })
     );
-    if (selectedCategory === id) setSelectedCategory(null);
+    if (allIdsToDelete.includes(selectedCategory!)) setSelectedCategory(null);
   };
 
   const handleImportData = (importedBookmarks: Bookmark[], importedCategories: Category[], persist?: boolean) => {
@@ -320,6 +327,7 @@ const Index = () => {
           bookmark={editingBookmark}
           categories={categories}
           onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
+          isPrivateSpace={true}
         />
 
         <CategoryManager
@@ -440,7 +448,7 @@ const Index = () => {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Website
+              {getTypeLabel("website")}
             </button>
             <button
               onClick={() => setSelectedType("app")}
@@ -450,7 +458,7 @@ const Index = () => {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              Application
+              {getTypeLabel("app")}
             </button>
             <button
               onClick={() => setSelectedType("url")}
@@ -460,7 +468,7 @@ const Index = () => {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              URL
+              {getTypeLabel("url")}
             </button>
           </div>
         )}

@@ -23,6 +23,7 @@ export interface Category {
   color: string;
   icon?: string; // Icon name from lucide-react
   showAddButton?: boolean; // Whether to show add button for this category
+  parentId?: string; // Parent category ID for sub-categories
 }
 
 export type ThemeMode = "light" | "dark" | "auto";

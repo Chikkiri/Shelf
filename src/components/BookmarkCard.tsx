@@ -1,4 +1,4 @@
-import { ExternalLink, Globe, Heart, Pencil, Pin, Play, Share2, Trash2 } from "lucide-react";
+import { ExternalLink, Globe, Heart, Link, Pencil, Pin, Play, Share2, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
 import { RatingDisplay } from "./RatingDisplay";
@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { getTypeLabel } from "@/utils/typeLabels";
 
 interface BookmarkCardProps {
   bookmark: Bookmark;
@@ -99,9 +100,16 @@ export function BookmarkCard({
             <h3 className={`font-medium text-card-foreground truncate ${settings.cardSize === "large" ? "text-base" : "text-sm"}`}>
               {bookmark.name}
             </h3>
-            {isApp && (
+            {bookmark.type === "app" && (
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/15 text-primary font-medium leading-none">
-                App
+                                {getTypeLabel("app")}
+              </span>
+            )}
+            {bookmark.type === "url" && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium leading-none flex items-center gap-0.5">
+                <Link className="h-2.5 w-2.5" />
+                {getTypeLabel("url")}
+
               </span>
             )}
           </div>
