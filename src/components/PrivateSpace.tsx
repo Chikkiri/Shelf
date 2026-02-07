@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, ArrowUpDown, Lock, ArrowLeft, Heart, MoreHorizontal } from "lucide-react";
+import { Search, ArrowUpDown, Lock, ArrowLeft, Bookmark as BookmarkIcon, MoreHorizontal } from "lucide-react";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
+import { usePalette } from "@/hooks/usePalette";
 import { BookmarkCard } from "@/components/BookmarkCard";
 import { CategoryHoverBoard } from "@/components/CategoryHoverBoard";
 import { PrivateSpaceSettingsMenu } from "@/components/PrivateSpaceSettingsMenu";
@@ -47,14 +48,20 @@ export function PrivateSpace({
   const [selectedType, setSelectedType] = useState<TypeFilter>("all");
   const [sortBy, setSortBy] = useState<SortOption>("recent");
   const [showFavorites, setShowFavorites] = useState(false);
+  
+  // Get palette settings
+  const { privateSpaceUseGlobalPalette } = usePalette();
 
   // Apply neutral Private Space theme on mount, restore on unmount
+  // If global palette is enabled, don't apply Private Space styling
   useEffect(() => {
-    document.documentElement.setAttribute("data-private-space", "true");
+    if (!privateSpaceUseGlobalPalette) {
+      document.documentElement.setAttribute("data-private-space", "true");
+    }
     return () => {
       document.documentElement.removeAttribute("data-private-space");
     };
-  }, []);
+  }, [privateSpaceUseGlobalPalette]);
 
   // Find the Others category ID
   const othersCategoryId = useMemo(() => {
@@ -87,12 +94,10 @@ export function PrivateSpace({
       selectedCategory,
       selectedType,
       sortBy,
-      hideOthersFromAll: settings.hideOthersFromAll,
-      othersCategoryId,
       isPrivateSpace: true,
       showFavorites,
     });
-  }, [bookmarks, search, selectedCategory, selectedType, sortBy, settings.hideOthersFromAll, othersCategoryId, showFavorites]);
+  }, [bookmarks, search, selectedCategory, selectedType, sortBy, showFavorites]);
 
   const handleToggleFavorites = () => {
     setShowFavorites((prev) => !prev);
@@ -128,7 +133,7 @@ export function PrivateSpace({
   const getEmptyState = () => {
     if (showFavorites) {
       return {
-        icon: <Heart className="w-8 h-8 private-space-muted" />,
+        icon: <BookmarkIcon className="w-8 h-8 private-space-muted" />,
         title: "No favorites yet",
         description: "Mark items as favorite to see them here",
       };

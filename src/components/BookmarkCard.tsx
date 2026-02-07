@@ -1,4 +1,4 @@
-import { ExternalLink, Globe, Heart, Link, Pencil, Pin, Play, Share2, Trash2 } from "lucide-react";
+import { ExternalLink, Globe, Bookmark as BookmarkIcon, Link, Pencil, Pin, Play, Share2, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
 import { RatingDisplay } from "./RatingDisplay";
@@ -95,21 +95,20 @@ export function BookmarkCard({
               <Pin className="h-3 w-3 text-primary flex-shrink-0" />
             )}
             {bookmark.favorite && (
-              <Heart className="h-3 w-3 text-destructive fill-destructive flex-shrink-0" />
+              <BookmarkIcon className="h-3 w-3 text-palette-primary fill-palette-primary flex-shrink-0" />
             )}
             <h3 className={`font-medium text-card-foreground truncate ${settings.cardSize === "large" ? "text-base" : "text-sm"}`}>
               {bookmark.name}
             </h3>
             {bookmark.type === "app" && (
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/15 text-primary font-medium leading-none">
-                                {getTypeLabel("app")}
+                {getTypeLabel("app")}
               </span>
             )}
             {bookmark.type === "url" && (
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium leading-none flex items-center gap-0.5">
                 <Link className="h-2.5 w-2.5" />
                 {getTypeLabel("url")}
-
               </span>
             )}
           </div>
@@ -126,7 +125,7 @@ export function BookmarkCard({
             className="h-7 w-7"
             onClick={() => onToggleFavorite(bookmark.id)}
           >
-            <Heart className={`h-3.5 w-3.5 ${bookmark.favorite ? "text-destructive fill-destructive" : "text-muted-foreground"}`} />
+            <BookmarkIcon className={`h-3.5 w-3.5 ${bookmark.favorite ? "text-palette-primary fill-palette-primary" : "text-muted-foreground"}`} />
           </Button>
           <Button
             variant="ghost"

@@ -9,8 +9,6 @@ interface FilterSortOptions {
   selectedCategory: string | null;
   selectedType: TypeFilter;
   sortBy: SortOption;
-  hideOthersFromAll: boolean;
-  othersCategoryId: string | undefined;
   isPrivateSpace: boolean;
   showFavorites?: boolean;
 }
@@ -21,8 +19,6 @@ export function filterAndSortBookmarks({
   selectedCategory,
   selectedType,
   sortBy,
-  hideOthersFromAll,
-  othersCategoryId,
   isPrivateSpace,
   showFavorites = false,
 }: FilterSortOptions): Bookmark[] {
@@ -31,26 +27,18 @@ export function filterAndSortBookmarks({
     ? bookmarks.filter((b) => b.private)
     : bookmarks.filter((b) => !b.private);
 
-  // Step 2: Hide Others items from "All" if setting is enabled and no category is selected
-  if (hideOthersFromAll && !selectedCategory && othersCategoryId && !showFavorites) {
-    result = result.filter((b) => {
-      const ids = b.categoryIds || [b.categoryId];
-      return !ids.includes(othersCategoryId);
-    });
-  }
-
-  // Step 3: Search filter
+  // Step 2: Search filter
   if (search) {
     const query = search.toLowerCase();
     result = result.filter((b) => b.name.toLowerCase().includes(query));
   }
 
-  // Step 4: Type filter (includes new "url" type)
+  // Step 3: Type filter (includes new "url" type)
   if (selectedType !== "all") {
     result = result.filter((b) => b.type === selectedType);
   }
 
-  // Step 5: Category / Favorite filter
+  // Step 4: Category / Favorite filter
   if (showFavorites) {
     // Favorite virtual category - show only favorites
     result = result.filter((b) => b.favorite);
@@ -61,7 +49,7 @@ export function filterAndSortBookmarks({
     });
   }
 
-  // Step 6: Sorting (base sort first)
+  // Step 5: Sorting (base sort first)
   switch (sortBy) {
     case "name":
       result.sort((a, b) => a.name.localeCompare(b.name));
@@ -82,7 +70,7 @@ export function filterAndSortBookmarks({
       break;
   }
 
-  // Step 7: Always sort pinned items to top (stable sort)
+  // Step 6: Always sort pinned items to top (stable sort)
   result.sort((a, b) => {
     if (a.pinned && !b.pinned) return -1;
     if (!a.pinned && b.pinned) return 1;

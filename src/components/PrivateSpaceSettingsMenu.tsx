@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Settings, LayoutGrid, Type, RotateCcw, Trash2, List, Grid3X3, FolderOpen, ArrowUp, ArrowDown, Lock } from "lucide-react";
-import { AppSettings, CardSize, LayoutView, GridColumns, HoverBoardPosition } from "@/types/bookmark";
+import { Settings, LayoutGrid, Type, RotateCcw, Trash2, Grid3X3, FolderOpen, ArrowUp, ArrowDown, Lock } from "lucide-react";
+import { AppSettings, CardSize, GridColumns, HoverBoardPosition } from "@/types/bookmark";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -81,47 +81,21 @@ export function PrivateSpaceSettingsMenu({
             </h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <Label className="private-space-text">View Style</Label>
+                <Label className="private-space-text">Grid Columns</Label>
                 <Select
-                  value={settings.layoutView}
-                  onValueChange={(v) => onUpdateSetting("layoutView", v as LayoutView)}
+                  value={settings.gridColumns}
+                  onValueChange={(v) => onUpdateSetting("gridColumns", v as GridColumns)}
                 >
                   <SelectTrigger className="w-32">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="list">
-                      <span className="flex items-center gap-2">
-                        <List className="h-4 w-4" /> List
-                      </span>
-                    </SelectItem>
-                    <SelectItem value="grid">
-                      <span className="flex items-center gap-2">
-                        <Grid3X3 className="h-4 w-4" /> Grid
-                      </span>
-                    </SelectItem>
+                    <SelectItem value="2">2 Columns</SelectItem>
+                    <SelectItem value="3">3 Columns</SelectItem>
+                    <SelectItem value="auto">Auto</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              
-              {settings.layoutView === "grid" && (
-                <div className="flex items-center justify-between">
-                  <Label className="private-space-text">Grid Columns</Label>
-                  <Select
-                    value={settings.gridColumns}
-                    onValueChange={(v) => onUpdateSetting("gridColumns", v as GridColumns)}
-                  >
-                    <SelectTrigger className="w-32">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="2">2 Columns</SelectItem>
-                      <SelectItem value="3">3 Columns</SelectItem>
-                      <SelectItem value="auto">Auto</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
 
               <div className="flex items-center justify-between">
                 <Label className="private-space-text">Card Size</Label>

@@ -41,8 +41,8 @@ export function PinDialog({ open, onOpenChange, mode, onSubmit }: PinDialogProps
     return /^\d{4,6}$/.test(value);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setError("");
 
     if (mode === "enter") {
@@ -86,6 +86,14 @@ export function PinDialog({ open, onOpenChange, mode, onSubmit }: PinDialogProps
     }
   };
 
+  // Handle Enter key press for unlock
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
   const getTitle = () => {
     switch (mode) {
       case "enter": return "Enter PIN";
@@ -125,6 +133,7 @@ export function PinDialog({ open, onOpenChange, mode, onSubmit }: PinDialogProps
                   maxLength={6}
                   value={oldPin}
                   onChange={(e) => setOldPin(e.target.value.replace(/\D/g, ""))}
+                  onKeyDown={handleKeyDown}
                   placeholder="••••"
                   className="pr-10"
                 />
@@ -144,6 +153,7 @@ export function PinDialog({ open, onOpenChange, mode, onSubmit }: PinDialogProps
                 maxLength={6}
                 value={pin}
                 onChange={(e) => setPin(e.target.value.replace(/\D/g, ""))}
+                onKeyDown={handleKeyDown}
                 placeholder="••••"
                 className="pr-10"
               />
@@ -168,6 +178,7 @@ export function PinDialog({ open, onOpenChange, mode, onSubmit }: PinDialogProps
                 maxLength={6}
                 value={confirmPin}
                 onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
+                onKeyDown={handleKeyDown}
                 placeholder="••••"
               />
             </div>

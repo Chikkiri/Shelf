@@ -39,9 +39,7 @@ export interface AppSettings {
   showNotes: boolean;
   layoutView: LayoutView;
   gridColumns: GridColumns;
-  accentColor: string; // HEX format: "#3b82f6"
   hoverBoardPosition: HoverBoardPosition;
-  hideOthersFromAll: boolean; // Hide "Others" category from "All" view
   persistOnImport: boolean; // Persist existing items when importing
 }
 
@@ -52,9 +50,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   showNotes: true,
   layoutView: "grid",
   gridColumns: "auto",
-  accentColor: "#3b82f6", // Default blue
   hoverBoardPosition: "bottom",
-  hideOthersFromAll: false,
   persistOnImport: false,
 };
 

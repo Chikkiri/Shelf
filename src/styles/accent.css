@@ -1,38 +1,62 @@
 /* 
- * Accent Color System
- * All accent color customization utilities are centralized here.
- * The --accent-hex variable is dynamically set via useAppSettings hook.
+ * Palette Color System
+ * Dynamic palette colors applied via usePalette hook.
+ * The --palette-* variables are dynamically set.
  */
 
 /* Background utilities */
-.bg-accent-custom {
-  background-color: var(--accent-hex);
+.bg-palette-primary {
+  background-color: var(--palette-primary);
 }
 
-.bg-accent-custom\/90 {
-  background-color: color-mix(in srgb, var(--accent-hex) 90%, transparent);
+.bg-palette-secondary {
+  background-color: var(--palette-secondary);
 }
 
-.bg-accent-custom\/80 {
-  background-color: color-mix(in srgb, var(--accent-hex) 80%, transparent);
+.bg-palette-accent {
+  background-color: var(--palette-accent);
+}
+
+.bg-palette-muted {
+  background-color: var(--palette-muted);
 }
 
 /* Text utilities */
-.text-accent-custom {
-  color: var(--accent-hex);
+.text-palette-primary {
+  color: var(--palette-primary);
+}
+
+.text-palette-secondary {
+  color: var(--palette-secondary);
+}
+
+.text-palette-accent {
+  color: var(--palette-accent);
 }
 
 /* Border utilities */
-.border-accent-custom {
-  border-color: var(--accent-hex);
+.border-palette-primary {
+  border-color: var(--palette-primary);
 }
 
 /* Ring utilities */
-.ring-accent-custom {
-  --tw-ring-color: var(--accent-hex);
+.ring-palette-primary {
+  --tw-ring-color: var(--palette-primary);
 }
 
-/* Focus states */
-.focus-accent-custom:focus {
-  outline-color: var(--accent-hex);
+/* Legacy support - accent-custom maps to palette-primary */
+.bg-accent-custom {
+  background-color: var(--palette-primary);
+}
+
+.text-accent-custom {
+  color: var(--palette-primary);
+}
+
+.border-accent-custom {
+  border-color: var(--palette-primary);
+}
+
+.ring-accent-custom {
+  --tw-ring-color: var(--palette-primary);
 }

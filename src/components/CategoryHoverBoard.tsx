@@ -1,6 +1,7 @@
 import { Layers } from "lucide-react";
 import { Category } from "@/types/bookmark";
 import { renderCategoryIcon } from "@/utils/categoryIcons";
+import { useMemo } from "react";
 
 interface CategoryHoverBoardProps {
   categories: Category[];
@@ -23,13 +24,19 @@ export function CategoryHoverBoard({
   showFavorites = false,
   onToggleFavorites,
 }: CategoryHoverBoardProps) {
+  // Filter to show only top-level categories (no parentId)
+  const topLevelCategories = useMemo(
+    () => categories.filter((c) => !c.parentId),
+    [categories]
+  );
+
   const baseItemClasses = isPrivateSpace
     ? "private-space-chip"
     : "bg-secondary text-secondary-foreground hover:bg-secondary/80";
 
   const activeItemClasses = isPrivateSpace
     ? "private-space-chip-active"
-    : "bg-accent-custom text-white";
+    : "bg-palette-primary text-white";
 
   const handleCategoryClick = (categoryId: string | null) => {
     // Reset favorites when selecting a category
@@ -53,8 +60,8 @@ export function CategoryHoverBoard({
           <span className="text-xs font-medium hidden sm:block">All</span>
         </button>
 
-        {/* Category items - dynamically rendered */}
-        {categories.map((cat) => (
+        {/* Category items - only top-level categories */}
+        {topLevelCategories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => handleCategoryClick(cat.id)}

@@ -1,8 +1,9 @@
 import { useState, useMemo } from "react";
-import { Search, ArrowUpDown, Layers, Heart, MoreHorizontal } from "lucide-react";
+import { Search, ArrowUpDown, Layers, Bookmark as BookmarkIcon, MoreHorizontal } from "lucide-react";
 import { Bookmark, Category, DEFAULT_SETTINGS } from "@/types/bookmark";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useAppSettings } from "@/hooks/useAppSettings";
+import { usePalette } from "@/hooks/usepalette";
 import { usePrivateSpace } from "@/contexts/PrivateSpaceContext";
 import { CategoryHoverBoard } from "@/components/CategoryHoverBoard";
 import { BookmarkCard } from "@/components/BookmarkCard";
@@ -36,6 +37,9 @@ const Index = () => {
   const [categories, setCategories] = useLocalStorage<Category[]>("categories", DEFAULT_CATEGORIES);
   const { settings, updateSetting, resetSettings } = useAppSettings();
   const { isUnlocked, hasPin, unlock, lock, setPin } = usePrivateSpace();
+  
+  // Initialize palette system
+  usePalette();
   
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -77,12 +81,10 @@ const Index = () => {
       selectedCategory,
       selectedType,
       sortBy,
-      hideOthersFromAll: settings.hideOthersFromAll,
-      othersCategoryId,
       isPrivateSpace: false,
       showFavorites,
     });
-  }, [bookmarks, search, selectedCategory, selectedType, sortBy, settings.hideOthersFromAll, othersCategoryId, showFavorites]);
+  }, [bookmarks, search, selectedCategory, selectedType, sortBy, showFavorites]);
 
   const handleAddBookmark = (data: Omit<Bookmark, "id" | "createdAt">) => {
     const newBookmark: Bookmark = {
@@ -132,7 +134,7 @@ const Index = () => {
       color,
       icon,
       showAddButton: showAddButton !== false,
-    parentId,
+      parentId,
     };
     setCategories((prev) => [...prev, newCategory]);
   };
@@ -144,7 +146,7 @@ const Index = () => {
   };
 
   const handleDeleteCategory = (id: string) => {
-   // Find all sub-categories that should also be deleted
+    // Find all sub-categories that should also be deleted
     const subCategoryIds = categories.filter((c) => c.parentId === id).map((c) => c.id);
     const allIdsToDelete = [id, ...subCategoryIds];
     
@@ -203,6 +205,20 @@ const Index = () => {
 
   const handleClearPrivateData = () => {
     setBookmarks((prev) => prev.filter((b) => !b.private));
+  };
+
+  const handleClearCategoryData = (categoryId: string) => {
+    // Get sub-category IDs
+    const subCategoryIds = categories.filter((c) => c.parentId === categoryId).map((c) => c.id);
+    const allCategoryIds = [categoryId, ...subCategoryIds];
+    
+    setBookmarks((prev) =>
+      prev.filter((b) => {
+        if (b.private) return true; // Don't delete private items
+        const ids = b.categoryIds || [b.categoryId];
+        return !ids.some((id) => allCategoryIds.includes(id));
+      })
+    );
   };
 
   const handlePrivateSpaceClick = () => {
@@ -270,7 +286,7 @@ const Index = () => {
     
     if (showFavorites) {
       return {
-        icon: <Heart className="w-8 h-8 text-muted-foreground" />,
+        icon: <BookmarkIcon className="w-8 h-8 text-muted-foreground" />,
         title: "No favorites yet",
         description: "Mark items as favorite to see them here",
       };
@@ -372,6 +388,8 @@ const Index = () => {
               onResetSettings={resetSettings}
               onClearData={handleClearData}
               onClearPrivateData={handleClearPrivateData}
+              onClearCategoryData={handleClearCategoryData}
+              bookmarkCounts={bookmarkCounts}
             />
           </div>
         </div>
