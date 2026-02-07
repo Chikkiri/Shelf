@@ -3,7 +3,7 @@ import { Search, ArrowUpDown, Layers, Bookmark as BookmarkIcon, MoreHorizontal }
 import { Bookmark, Category, DEFAULT_SETTINGS } from "@/types/bookmark";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useAppSettings } from "@/hooks/useAppSettings";
-import { usePalette } from "@/hooks/usepalette";
+import { usePalette } from "@/hooks/usePalette";
 import { usePrivateSpace } from "@/contexts/PrivateSpaceContext";
 import { CategoryHoverBoard } from "@/components/CategoryHoverBoard";
 import { BookmarkCard } from "@/components/BookmarkCard";
