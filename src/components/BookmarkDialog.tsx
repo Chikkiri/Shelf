@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Bookmark, BookmarkType, Category } from "@/types/bookmark";
+import { ItemTag } from "@/types/tags";
 import { StarRating } from "./StarRating";
+import { TagSelector } from "./TagSelector";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -15,15 +17,15 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { BOOKMARK_TYPES, getTypeLabel } from "@/utils/typeLabels";
-import { FolderOpen } from "lucide-react";
 
 interface BookmarkDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   bookmark?: Bookmark | null;
   categories: Category[];
+  customTags: ItemTag[];
+  onAddCustomTag: (tag: ItemTag) => void;
   onSave: (bookmark: Omit<Bookmark, "id" | "createdAt">) => void;
-parentCategoryName?: string; // Display parent folder name when adding inside a sub-category
   isPrivateSpace?: boolean;
 }
 
@@ -32,8 +34,9 @@ export function BookmarkDialog({
   onOpenChange,
   bookmark,
   categories,
+  customTags,
+  onAddCustomTag,
   onSave,
-  parentCategoryName,
   isPrivateSpace = false,
 }: BookmarkDialogProps) {
   const [name, setName] = useState("");
@@ -46,6 +49,7 @@ export function BookmarkDialog({
   const [pinned, setPinned] = useState(false);
   const [favorite, setFavorite] = useState(false);
   const [isPrivate, setIsPrivate] = useState(false);
+  const [tags, setTags] = useState<string[]>([]);
 
   useEffect(() => {
     if (bookmark) {
@@ -60,6 +64,7 @@ export function BookmarkDialog({
       setPinned(bookmark.pinned || false);
       setFavorite(bookmark.favorite || false);
       setIsPrivate(bookmark.private || false);
+      setTags(bookmark.tags || []);
     } else {
       setName("");
       setUrl("");
@@ -71,6 +76,7 @@ export function BookmarkDialog({
       setPinned(false);
       setFavorite(false);
       setIsPrivate(false);
+      setTags([]);
     }
   }, [bookmark, categories, open]);
 
@@ -102,13 +108,10 @@ export function BookmarkDialog({
       pinned,
       favorite,
       private: isPrivate,
+      tags,
     });
     onOpenChange(false);
   };
-
-    // Get parent categories (no parentId) for display
-  const parentCategories = categories.filter((c) => !c.parentId);
-  const subCategories = categories.filter((c) => c.parentId);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -117,15 +120,6 @@ export function BookmarkDialog({
           <DialogTitle>
             {bookmark ? "Edit Item" : "Add Item"}
           </DialogTitle>
-        {/* Show parent folder name when adding inside a sub-category */}
-          {parentCategoryName && (
-            <div className={`flex items-center gap-2 mt-2 px-3 py-2 rounded-md ${isPrivateSpace ? 'bg-secondary/50' : 'bg-accent/10'}`}>
-              <FolderOpen className={`w-4 h-4 ${isPrivateSpace ? 'text-muted-foreground' : 'text-accent-custom'}`} />
-              <span className="text-sm text-muted-foreground">
-                Adding to: <span className={`font-medium ${isPrivateSpace ? 'text-foreground' : 'text-accent-custom'}`}>{parentCategoryName}</span>
-              </span>
-            </div>
-          )}
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -175,8 +169,7 @@ export function BookmarkDialog({
           <div className="space-y-2">
             <Label>Categories (select one or more)</Label>
             <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 border rounded-lg">
-              {/* Parent categories */}
-              {parentCategories.map((cat) => (
+              {categories.map((cat) => (
                 <div key={cat.id} className="flex items-center space-x-2">
                   <Checkbox
                     id={`cat-${cat.id}`}
@@ -191,29 +184,22 @@ export function BookmarkDialog({
                   </label>
                 </div>
               ))}
-            {/* Sub-categories with indent */}
-              {subCategories.map((cat) => {
-                const parent = categories.find((c) => c.id === cat.parentId);
-                return (
-                  <div key={cat.id} className="flex items-center space-x-2 pl-4">
-                    <Checkbox
-                      id={`cat-${cat.id}`}
-                      checked={categoryIds.includes(cat.id)}
-                      onCheckedChange={(checked) => handleCategoryToggle(cat.id, checked as boolean)}
-                    />
-                    <label
-                      htmlFor={`cat-${cat.id}`}
-                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer text-muted-foreground"
-                    >
-                      {parent ? `${parent.name} / ` : ""}{cat.name}
-                    </label>
-                  </div>
-                );
-              })}
             </div>
             {categoryIds.length === 0 && (
               <p className="text-xs text-destructive">Select at least one category</p>
             )}
+          </div>
+
+          {/* Tags */}
+          <div className="space-y-2">
+            <Label>Tags (optional)</Label>
+            <TagSelector
+              selectedTags={tags}
+              customTags={customTags}
+              onTagsChange={setTags}
+              onAddCustomTag={onAddCustomTag}
+              isPrivateSpace={isPrivateSpace}
+            />
           </div>
 
           <div className="space-y-2">

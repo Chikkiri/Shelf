@@ -29,12 +29,6 @@ export function AdvancedExportDialog({
   bookmarks,
   categories,
 }: AdvancedExportDialogProps) {
-  // Filter out sub-categories for selection (only top-level)
-  const topLevelCategories = useMemo(
-    () => categories.filter((c) => !c.parentId),
-    [categories]
-  );
-
   const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([]);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
 
@@ -50,17 +44,9 @@ export function AdvancedExportDialog({
 
     // Filter by categories if any selected
     if (selectedCategoryIds.length > 0) {
-      // Include sub-categories of selected parent categories
-      const allSelectedIds = new Set<string>();
-      selectedCategoryIds.forEach((id) => {
-        allSelectedIds.add(id);
-        // Add sub-categories
-        categories.filter((c) => c.parentId === id).forEach((c) => allSelectedIds.add(c.id));
-      });
-
       filtered = filtered.filter((b) => {
         const ids = b.categoryIds || [b.categoryId];
-        return ids.some((id) => allSelectedIds.has(id));
+        return ids.some((id) => selectedCategoryIds.includes(id));
       });
     }
 
@@ -70,7 +56,7 @@ export function AdvancedExportDialog({
     }
 
     return filtered.length;
-  }, [exportableBookmarks, selectedCategoryIds, selectedTypes, categories]);
+  }, [exportableBookmarks, selectedCategoryIds, selectedTypes]);
 
   const handleCategoryToggle = (categoryId: string) => {
     setSelectedCategoryIds((prev) =>
@@ -87,10 +73,10 @@ export function AdvancedExportDialog({
   };
 
   const handleSelectAllCategories = () => {
-    if (selectedCategoryIds.length === topLevelCategories.length) {
+    if (selectedCategoryIds.length === categories.length) {
       setSelectedCategoryIds([]);
     } else {
-      setSelectedCategoryIds(topLevelCategories.map((c) => c.id));
+      setSelectedCategoryIds(categories.map((c) => c.id));
     }
   };
 
@@ -108,15 +94,9 @@ export function AdvancedExportDialog({
 
     // Filter by categories if any selected
     if (selectedCategoryIds.length > 0) {
-      const allSelectedIds = new Set<string>();
-      selectedCategoryIds.forEach((id) => {
-        allSelectedIds.add(id);
-        categories.filter((c) => c.parentId === id).forEach((c) => allSelectedIds.add(c.id));
-      });
-
       filtered = filtered.filter((b) => {
         const ids = b.categoryIds || [b.categoryId];
-        return ids.some((id) => allSelectedIds.has(id));
+        return ids.some((id) => selectedCategoryIds.includes(id));
       });
     }
 
@@ -130,13 +110,6 @@ export function AdvancedExportDialog({
     filtered.forEach((b) => {
       const ids = b.categoryIds || [b.categoryId];
       ids.forEach((id) => relevantCategoryIds.add(id));
-    });
-
-    // Include parent categories too
-    categories.forEach((c) => {
-      if (relevantCategoryIds.has(c.id) && c.parentId) {
-        relevantCategoryIds.add(c.parentId);
-      }
     });
 
     const relevantCategories = categories.filter((c) => relevantCategoryIds.has(c.id));
@@ -184,13 +157,13 @@ export function AdvancedExportDialog({
                 Categories
               </Label>
               <Button variant="ghost" size="sm" onClick={handleSelectAllCategories}>
-                {selectedCategoryIds.length === topLevelCategories.length
+                {selectedCategoryIds.length === categories.length
                   ? "Deselect All"
                   : "Select All"}
               </Button>
             </div>
             <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto">
-              {topLevelCategories.map((category) => (
+              {categories.map((category) => (
                 <label
                   key={category.id}
                   className="flex items-center gap-2 p-2 rounded-lg border border-border hover:bg-muted/50 cursor-pointer"

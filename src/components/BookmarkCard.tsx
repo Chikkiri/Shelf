@@ -1,8 +1,10 @@
 import { ExternalLink, Globe, Bookmark as BookmarkIcon, Link, Pencil, Pin, Play, Share2, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
+import { ItemTag } from "@/types/tags";
 import { RatingDisplay } from "./RatingDisplay";
 import { CategoryBadge } from "./CategoryBadge";
+import { TagDisplay, HighlightedText } from "./TagSelector";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -27,19 +29,23 @@ import { getTypeLabel } from "@/utils/typeLabels";
 interface BookmarkCardProps {
   bookmark: Bookmark;
   categories: Category[];
+  customTags?: ItemTag[];
   settings: AppSettings;
   onEdit: (bookmark: Bookmark) => void;
   onDelete: (id: string) => void;
   onToggleFavorite: (id: string) => void;
+  searchHighlight?: string;
 }
 
 export function BookmarkCard({ 
   bookmark, 
-  categories, 
+  categories,
+  customTags = [],
   settings,
   onEdit, 
   onDelete,
   onToggleFavorite,
+  searchHighlight,
 }: BookmarkCardProps) {
   const isApp = bookmark.type === "app";
   const isMobile = useIsMobile();
@@ -98,7 +104,11 @@ export function BookmarkCard({
               <BookmarkIcon className="h-3 w-3 text-palette-primary fill-palette-primary flex-shrink-0" />
             )}
             <h3 className={`font-medium text-card-foreground truncate ${settings.cardSize === "large" ? "text-base" : "text-sm"}`}>
-              {bookmark.name}
+              {searchHighlight ? (
+                <HighlightedText text={bookmark.name} highlight={searchHighlight} />
+              ) : (
+                bookmark.name
+              )}
             </h3>
             {bookmark.type === "app" && (
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/15 text-primary font-medium leading-none">
@@ -112,11 +122,19 @@ export function BookmarkCard({
               </span>
             )}
           </div>
-          <div className="flex flex-wrap gap-1">
+          <div className="flex flex-wrap gap-1 mb-1">
             {bookmarkCategories.map((cat) => (
               <CategoryBadge key={cat.id} name={cat.name} color={cat.color} />
             ))}
           </div>
+          {/* Tags display */}
+          {bookmark.tags && bookmark.tags.length > 0 && (
+            <TagDisplay 
+              tagIds={bookmark.tags} 
+              customTags={customTags}
+              highlightText={searchHighlight}
+            />
+          )}
         </div>
         <div className="flex items-center gap-0.5 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
           <Button
@@ -172,7 +190,11 @@ export function BookmarkCard({
 
       {settings.showDescriptions && bookmark.description && (
         <p className={`text-muted-foreground line-clamp-2 mt-2 ${settings.cardSize === "small" ? "text-xs" : "text-sm"}`}>
-          {bookmark.description}
+          {searchHighlight ? (
+            <HighlightedText text={bookmark.description} highlight={searchHighlight} />
+          ) : (
+            bookmark.description
+          )}
         </p>
       )}
 
@@ -231,7 +253,11 @@ export function BookmarkCard({
 
       {settings.showNotes && bookmark.notes && (
         <p className={`mt-2 text-muted-foreground/80 italic ${settings.cardSize === "small" ? "text-[11px]" : "text-xs"}`}>
-          "{bookmark.notes}"
+          "{searchHighlight ? (
+            <HighlightedText text={bookmark.notes} highlight={searchHighlight} />
+          ) : (
+            bookmark.notes
+          )}"
         </p>
       )}
     </div>

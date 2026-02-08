@@ -47,27 +47,11 @@ export function ClearCategoryDialog({
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
   const [confirmOpen, setConfirmOpen] = useState(false);
 
-  // Filter out sub-categories, show only top-level
-  const topLevelCategories = useMemo(
-    () => categories.filter((c) => !c.parentId),
-    [categories]
-  );
-
-  // Get sub-categories for selected category
-  const subCategories = useMemo(
-    () => categories.filter((c) => c.parentId === selectedCategoryId),
-    [categories, selectedCategoryId]
-  );
-
-  // Calculate total count including sub-categories
+  // Get count for selected category
   const totalCount = useMemo(() => {
     if (!selectedCategoryId) return 0;
-    let count = bookmarkCounts[selectedCategoryId] || 0;
-    subCategories.forEach((sub) => {
-      count += bookmarkCounts[sub.id] || 0;
-    });
-    return count;
-  }, [selectedCategoryId, bookmarkCounts, subCategories]);
+    return bookmarkCounts[selectedCategoryId] || 0;
+  }, [selectedCategoryId, bookmarkCounts]);
 
   const selectedCategory = categories.find((c) => c.id === selectedCategoryId);
 
@@ -105,12 +89,8 @@ export function ClearCategoryDialog({
                   <SelectValue placeholder="Choose a category..." />
                 </SelectTrigger>
                 <SelectContent>
-                  {topLevelCategories.map((category) => {
-                    const subs = categories.filter((c) => c.parentId === category.id);
-                    let count = bookmarkCounts[category.id] || 0;
-                    subs.forEach((sub) => {
-                      count += bookmarkCounts[sub.id] || 0;
-                    });
+                  {categories.map((category) => {
+                    const count = bookmarkCounts[category.id] || 0;
                     return (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name} ({count} items)
@@ -126,12 +106,6 @@ export function ClearCategoryDialog({
                 <p className="text-sm">
                   <strong>{totalCount}</strong> items will be deleted from{" "}
                   <strong>{selectedCategory?.name}</strong>
-                  {subCategories.length > 0 && (
-                    <span className="text-muted-foreground">
-                      {" "}
-                      (including {subCategories.length} sub-categories)
-                    </span>
-                  )}
                 </p>
               </div>
             )}
@@ -158,8 +132,6 @@ export function ClearCategoryDialog({
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete {totalCount} items from "{selectedCategory?.name}".
-              {subCategories.length > 0 &&
-                ` Items in ${subCategories.length} sub-categories will also be deleted.`}
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

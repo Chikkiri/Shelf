@@ -1,12 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
-import { Search, ArrowUpDown, Lock, ArrowLeft, Bookmark as BookmarkIcon, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, Lock, ArrowLeft, Bookmark as BookmarkIcon, MoreHorizontal } from "lucide-react";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
+import { ItemTag } from "@/types/tags";
 import { usePalette } from "@/hooks/usePalette";
 import { BookmarkCard } from "@/components/BookmarkCard";
 import { CategoryHoverBoard } from "@/components/CategoryHoverBoard";
 import { PrivateSpaceSettingsMenu } from "@/components/PrivateSpaceSettingsMenu";
+import { SearchFilterBar, SearchFilters, DEFAULT_FILTERS } from "@/components/SearchFilterBar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +20,7 @@ import { getTypeLabel } from "@/utils/typeLabels";
 interface PrivateSpaceProps {
   bookmarks: Bookmark[];
   categories: Category[];
+  customTags: ItemTag[];
   settings: AppSettings;
   onEdit: (bookmark: Bookmark) => void;
   onDelete: (id: string) => void;
@@ -33,6 +35,7 @@ interface PrivateSpaceProps {
 export function PrivateSpace({
   bookmarks,
   categories,
+  customTags,
   settings,
   onEdit,
   onDelete,
@@ -44,6 +47,7 @@ export function PrivateSpace({
   onClearPrivateData,
 }: PrivateSpaceProps) {
   const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<TypeFilter>("all");
   const [sortBy, setSortBy] = useState<SortOption>("recent");
@@ -96,8 +100,10 @@ export function PrivateSpace({
       sortBy,
       isPrivateSpace: true,
       showFavorites,
+      filters,
+      customTags,
     });
-  }, [bookmarks, search, selectedCategory, selectedType, sortBy, showFavorites]);
+  }, [bookmarks, search, selectedCategory, selectedType, sortBy, showFavorites, filters, customTags]);
 
   const handleToggleFavorites = () => {
     setShowFavorites((prev) => !prev);
@@ -195,13 +201,14 @@ export function PrivateSpace({
 
         {/* Filters */}
         <div className="flex gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 private-space-muted" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search private items..."
-              className="pl-9 private-space-input"
+          <div className="flex-1">
+            <SearchFilterBar
+              search={search}
+              onSearchChange={setSearch}
+              filters={filters}
+              onFiltersChange={setFilters}
+              customTags={customTags}
+              isPrivateSpace={true}
             />
           </div>
           <DropdownMenu>
@@ -322,10 +329,12 @@ export function PrivateSpace({
                 key={bookmark.id}
                 bookmark={bookmark}
                 categories={categories}
+                customTags={customTags}
                 settings={settings}
                 onEdit={onEdit}
                 onDelete={onDelete}
                 onToggleFavorite={onToggleFavorite}
+                searchHighlight={search}
               />
             ))}
           </div>

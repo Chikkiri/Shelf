@@ -1,7 +1,5 @@
-import { Layers } from "lucide-react";
 import { Category } from "@/types/bookmark";
 import { renderCategoryIcon } from "@/utils/categoryIcons";
-import { useMemo } from "react";
 
 interface CategoryHoverBoardProps {
   categories: Category[];
@@ -24,12 +22,6 @@ export function CategoryHoverBoard({
   showFavorites = false,
   onToggleFavorites,
 }: CategoryHoverBoardProps) {
-  // Filter to show only top-level categories (no parentId)
-  const topLevelCategories = useMemo(
-    () => categories.filter((c) => !c.parentId),
-    [categories]
-  );
-
   const baseItemClasses = isPrivateSpace
     ? "private-space-chip"
     : "bg-secondary text-secondary-foreground hover:bg-secondary/80";
@@ -48,20 +40,9 @@ export function CategoryHoverBoard({
 
   return (
     <div className="flex justify-center mb-6">
-      <div className={`inline-flex items-center gap-1 sm:gap-2 p-2 rounded-2xl ${isPrivateSpace ? 'private-space-hover-board' : 'bg-secondary/50'}`}>
-        {/* All category */}
-        <button
-          onClick={() => handleCategoryClick(null)}
-          className={`flex flex-col items-center gap-1 px-3 sm:px-4 py-2 rounded-xl transition-colors min-w-[48px] sm:min-w-[72px] ${
-            selectedCategory === null && !showFavorites ? activeItemClasses : baseItemClasses
-          }`}
-        >
-          <Layers className="w-5 h-5" />
-          <span className="text-xs font-medium hidden sm:block">All</span>
-        </button>
-
-        {/* Category items - only top-level categories */}
-        {topLevelCategories.map((cat) => (
+      <div className={`inline-flex items-center gap-1 sm:gap-2 p-2 rounded-2xl flex-wrap justify-center ${isPrivateSpace ? 'private-space-hover-board' : 'bg-secondary/50'}`}>
+        {/* Category items - show all categories (no "All" category) */}
+        {categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => handleCategoryClick(cat.id)}

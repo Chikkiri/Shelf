@@ -44,6 +44,11 @@
   --tw-ring-color: var(--palette-primary);
 }
 
+/* Fill utilities */
+.fill-palette-primary {
+  fill: var(--palette-primary);
+}
+
 /* Legacy support - accent-custom maps to palette-primary */
 .bg-accent-custom {
   background-color: var(--palette-primary);

@@ -5,7 +5,7 @@ export interface Bookmark {
   name: string;
   url: string;
   categoryId: string; // Keep for backward compatibility
-  categoryIds?: string[]; // New: multiple categories
+  categoryIds?: string[]; // Multiple categories
   description: string;
   rating: number;
   notes: string;
@@ -15,6 +15,7 @@ export interface Bookmark {
   pinned?: boolean;
   favorite?: boolean;
   private?: boolean; // Private Space item
+  tags?: string[]; // Tag IDs
 }
 
 export interface Category {
@@ -23,7 +24,6 @@ export interface Category {
   color: string;
   icon?: string; // Icon name from lucide-react
   showAddButton?: boolean; // Whether to show add button for this category
-  parentId?: string; // Parent category ID for sub-categories
 }
 
 export type ThemeMode = "light" | "dark" | "auto";

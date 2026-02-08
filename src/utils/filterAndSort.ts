@@ -1,4 +1,7 @@
 import { Bookmark } from "@/types/bookmark";
+import { SearchFilters } from "@/components/SearchFilterBar";
+import { ItemTag, STOCK_TAGS } from "@/types/tags";
+import { getTypeLabel } from "@/utils/typeLabels";
 
 export type SortOption = "name" | "rating" | "recent" | "favorite";
 export type TypeFilter = "all" | "website" | "app" | "url";
@@ -11,6 +14,8 @@ interface FilterSortOptions {
   sortBy: SortOption;
   isPrivateSpace: boolean;
   showFavorites?: boolean;
+  filters?: SearchFilters;
+  customTags?: ItemTag[];
 }
 
 export function filterAndSortBookmarks({
@@ -21,24 +26,74 @@ export function filterAndSortBookmarks({
   sortBy,
   isPrivateSpace,
   showFavorites = false,
+  filters,
+  customTags = [],
 }: FilterSortOptions): Bookmark[] {
   // Step 1: Exclude private items (main space only)
   let result = isPrivateSpace
     ? bookmarks.filter((b) => b.private)
     : bookmarks.filter((b) => !b.private);
 
-  // Step 2: Search filter
+  // Step 2: Enhanced search filter (name, description, notes, tags, type, favorite)
   if (search) {
     const query = search.toLowerCase();
-    result = result.filter((b) => b.name.toLowerCase().includes(query));
+    const allTags = [...STOCK_TAGS, ...customTags];
+    
+    result = result.filter((b) => {
+      // Search in name
+      if (b.name.toLowerCase().includes(query)) return true;
+      // Search in description
+      if (b.description?.toLowerCase().includes(query)) return true;
+      // Search in notes
+      if (b.notes?.toLowerCase().includes(query)) return true;
+      // Search in type label
+      if (getTypeLabel(b.type).toLowerCase().includes(query)) return true;
+      // Search in tags
+      if (b.tags && b.tags.length > 0) {
+        const tagNames = b.tags.map((tagId) => {
+          const tag = allTags.find((t) => t.id === tagId);
+          return tag?.name?.toLowerCase() || "";
+        });
+        if (tagNames.some((name) => name.includes(query))) return true;
+      }
+      // Search for "favorite" or "starred"
+      if (b.favorite && (query.includes("favorite") || query.includes("starred"))) return true;
+      return false;
+    });
   }
 
-  // Step 3: Type filter (includes new "url" type)
-  if (selectedType !== "all") {
+  // Step 3: Advanced filters
+  if (filters) {
+    // Filter by tags
+    if (filters.tags.length > 0) {
+      result = result.filter((b) => 
+        b.tags && filters.tags.some((tagId) => b.tags!.includes(tagId))
+      );
+    }
+    // Filter by min rating
+    if (filters.minRating > 0) {
+      result = result.filter((b) => b.rating >= filters.minRating);
+    }
+    // Filter by types
+    if (filters.types.length > 0) {
+      result = result.filter((b) => filters.types.includes(b.type));
+    }
+    // Filter by favorites
+    if (filters.favoritesOnly) {
+      result = result.filter((b) => b.favorite);
+    }
+    // Filter by pinned
+    if (filters.pinnedOnly) {
+      result = result.filter((b) => b.pinned);
+    }
+  }
+
+  // Step 4: Type filter (from type bar, if no advanced type filter)
+  if (selectedType !== "all" && (!filters || filters.types.length === 0)) {
     result = result.filter((b) => b.type === selectedType);
   }
 
-  // Step 4: Category / Favorite filter
+  // Step 5: Category / Favorite filter
   if (showFavorites) {
     // Favorite virtual category - show only favorites
     result = result.filter((b) => b.favorite);

@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
-import { Search, ArrowUpDown, Layers, Bookmark as BookmarkIcon, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown, Layers, Bookmark as BookmarkIcon, MoreHorizontal } from "lucide-react";
 import { Bookmark, Category, DEFAULT_SETTINGS } from "@/types/bookmark";
+import { ItemTag } from "@/types/tags";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { usePalette } from "@/hooks/usePalette";
@@ -13,8 +14,8 @@ import { SettingsMenu } from "@/components/SettingsMenu";
 import { FloatingAddButton } from "@/components/FloatingAddButton";
 import { PinDialog } from "@/components/PinDialog";
 import { PrivateSpace } from "@/components/PrivateSpace";
+import { SearchFilterBar, SearchFilters, DEFAULT_FILTERS } from "@/components/SearchFilterBar";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,6 +36,7 @@ const DEFAULT_CATEGORIES: Category[] = [
 const Index = () => {
   const [bookmarks, setBookmarks] = useLocalStorage<Bookmark[]>("bookmarks", []);
   const [categories, setCategories] = useLocalStorage<Category[]>("categories", DEFAULT_CATEGORIES);
+  const [customTags, setCustomTags] = useLocalStorage<ItemTag[]>("customTags", []);
   const { settings, updateSetting, resetSettings } = useAppSettings();
   const { isUnlocked, hasPin, unlock, lock, setPin } = usePrivateSpace();
   
@@ -42,6 +44,7 @@ const Index = () => {
   usePalette();
   
   const [search, setSearch] = useState("");
+  const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<TypeFilter>("all");
   const [sortBy, setSortBy] = useState<SortOption>("recent");
@@ -83,8 +86,10 @@ const Index = () => {
       sortBy,
       isPrivateSpace: false,
       showFavorites,
+      filters,
+      customTags,
     });
-  }, [bookmarks, search, selectedCategory, selectedType, sortBy, showFavorites]);
+  }, [bookmarks, search, selectedCategory, selectedType, sortBy, showFavorites, filters, customTags]);
 
   const handleAddBookmark = (data: Omit<Bookmark, "id" | "createdAt">) => {
     const newBookmark: Bookmark = {
@@ -127,14 +132,13 @@ const Index = () => {
     setBookmarkDialogOpen(true);
   };
 
-  const handleAddCategory = (name: string, color: string, icon?: string, showAddButton?: boolean, parentId?: string) => {
+  const handleAddCategory = (name: string, color: string, icon?: string, showAddButton?: boolean) => {
     const newCategory: Category = {
       id: crypto.randomUUID(),
       name,
       color,
       icon,
       showAddButton: showAddButton !== false,
-      parentId,
     };
     setCategories((prev) => [...prev, newCategory]);
   };
@@ -146,15 +150,11 @@ const Index = () => {
   };
 
   const handleDeleteCategory = (id: string) => {
-    // Find all sub-categories that should also be deleted
-    const subCategoryIds = categories.filter((c) => c.parentId === id).map((c) => c.id);
-    const allIdsToDelete = [id, ...subCategoryIds];
-    
     // Find or create Others category for reassignment
-    let othersId = categories.find((c) => c.name === "Others" && !c.parentId)?.id;
+    let othersId = categories.find((c) => c.name === "Others")?.id;
     if (!othersId) {
       othersId = crypto.randomUUID();
-      setCategories((prev) => [...prev.filter((c) => !allIdsToDelete.includes(c.id)), {
+      setCategories((prev) => [...prev.filter((c) => c.id !== id), {
         id: othersId!,
         name: "Others",
         color: "orange",
@@ -162,16 +162,16 @@ const Index = () => {
         showAddButton: true,
       }]);
     } else {
-      setCategories((prev) => prev.filter((c) => !allIdsToDelete.includes(c.id)));
+      setCategories((prev) => prev.filter((c) => c.id !== id));
     }
     
     // Reassign bookmarks to Others
     setBookmarks((prev) =>
       prev.map((b) => {
         const ids = b.categoryIds || [b.categoryId];
-        const hasDeletedCategory = ids.some((cId) => allIdsToDelete.includes(cId));
+        const hasDeletedCategory = ids.includes(id);
         if (hasDeletedCategory) {
-          const newIds = ids.filter((cId) => !allIdsToDelete.includes(cId));
+          const newIds = ids.filter((cId) => cId !== id);
           if (newIds.length === 0) {
             newIds.push(othersId!);
           }
@@ -180,7 +180,11 @@ const Index = () => {
         return b;
       })
     );
-    if (allIdsToDelete.includes(selectedCategory!)) setSelectedCategory(null);
+    if (selectedCategory === id) setSelectedCategory(null);
+  };
+
+  const handleAddCustomTag = (tag: ItemTag) => {
+    setCustomTags((prev) => [...prev, tag]);
   };
 
   const handleImportData = (importedBookmarks: Bookmark[], importedCategories: Category[], persist?: boolean) => {
@@ -208,15 +212,11 @@ const Index = () => {
   };
 
   const handleClearCategoryData = (categoryId: string) => {
-    // Get sub-category IDs
-    const subCategoryIds = categories.filter((c) => c.parentId === categoryId).map((c) => c.id);
-    const allCategoryIds = [categoryId, ...subCategoryIds];
-    
     setBookmarks((prev) =>
       prev.filter((b) => {
         if (b.private) return true; // Don't delete private items
         const ids = b.categoryIds || [b.categoryId];
-        return !ids.some((id) => allCategoryIds.includes(id));
+        return !ids.includes(categoryId);
       })
     );
   };
@@ -316,6 +316,7 @@ const Index = () => {
         <PrivateSpace
           bookmarks={bookmarks}
           categories={categories}
+          customTags={customTags}
           settings={settings}
           onEdit={openEditDialog}
           onDelete={handleDeleteBookmark}
@@ -342,6 +343,8 @@ const Index = () => {
           }}
           bookmark={editingBookmark}
           categories={categories}
+          customTags={customTags}
+          onAddCustomTag={handleAddCustomTag}
           onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
           isPrivateSpace={true}
         />
@@ -397,15 +400,15 @@ const Index = () => {
 
       <main className="container py-6">
 
-        {/* Filters */}
+        {/* Search and Filters */}
         <div className="flex gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search items..."
-              className="pl-9"
+          <div className="flex-1">
+            <SearchFilterBar
+              search={search}
+              onSearchChange={setSearch}
+              filters={filters}
+              onFiltersChange={setFilters}
+              customTags={customTags}
             />
           </div>
           <DropdownMenu>
@@ -524,10 +527,12 @@ const Index = () => {
                 key={bookmark.id}
                 bookmark={bookmark}
                 categories={categories}
+                customTags={customTags}
                 settings={settings}
                 onEdit={openEditDialog}
                 onDelete={handleDeleteBookmark}
                 onToggleFavorite={handleToggleFavorite}
+                searchHighlight={search}
               />
             ))}
           </div>
@@ -548,6 +553,8 @@ const Index = () => {
         }}
         bookmark={editingBookmark}
         categories={categories}
+        customTags={customTags}
+        onAddCustomTag={handleAddCustomTag}
         onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
       />
 
