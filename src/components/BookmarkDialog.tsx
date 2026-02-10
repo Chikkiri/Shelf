@@ -16,7 +16,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { BOOKMARK_TYPES, getTypeLabel } from "@/utils/typeLabels";
+import { BOOKMARK_TYPES, getTypeLabelSingular } from "@/utils/typeLabels";
 
 interface BookmarkDialogProps {
   open: boolean;
@@ -92,9 +92,12 @@ export function BookmarkDialog({
     setType(selectedType);
   };
 
+  const isNote = type === "note";
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !url.trim() || categoryIds.length === 0) return;
+    if (!name.trim() || categoryIds.length === 0) return;
+    if (!isNote && !url.trim()) return;
     
     onSave({
       name: name.trim(),
@@ -147,27 +150,29 @@ export function BookmarkDialog({
                     htmlFor={`type-${t}`}
                     className="text-sm font-medium leading-none cursor-pointer"
                   >
-                    {getTypeLabel(t)}
+                    {getTypeLabelSingular(t)}
                   </label>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="url">URL</Label>
-            <Input
-              id="url"
-              type="url"
-              value={url}
-              onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://example.com"
-              required
-            />
-          </div>
+          {!isNote && (
+            <div className="space-y-2">
+              <Label htmlFor="url">URL</Label>
+              <Input
+                id="url"
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://example.com"
+                required
+              />
+            </div>
+          )}
 
           <div className="space-y-2">
-            <Label>Categories (select one or more)</Label>
+            <Label>Category</Label>
             <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 border rounded-lg">
               {categories.map((cat) => (
                 <div key={cat.id} className="flex items-center space-x-2">
@@ -192,7 +197,7 @@ export function BookmarkDialog({
 
           {/* Tags */}
           <div className="space-y-2">
-            <Label>Tags (optional)</Label>
+            <Label>Tags</Label>
             <TagSelector
               selectedTags={tags}
               customTags={customTags}

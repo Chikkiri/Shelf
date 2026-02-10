@@ -124,7 +124,7 @@ export function SearchFilterBar({
             <div className="space-y-2">
               <Label className="text-xs font-medium text-muted-foreground">Type</Label>
               <div className="flex flex-wrap gap-2">
-                {(["website", "app", "url"] as const).map((type) => (
+                {(["website", "app", "url", "note"] as const).map((type) => (
                   <button
                     key={type}
                     onClick={() => handleTypeToggle(type)}

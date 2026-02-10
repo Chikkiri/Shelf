@@ -1,4 +1,4 @@
-import { ExternalLink, Globe, Bookmark as BookmarkIcon, Link, Pencil, Pin, Play, Share2, Trash2 } from "lucide-react";
+import { ExternalLink, Globe, Bookmark as BookmarkIcon, Link, Pencil, Pin, Play, Share2, Tag, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
 import { ItemTag } from "@/types/tags";
@@ -121,6 +121,12 @@ export function BookmarkCard({
                 {getTypeLabel("url")}
               </span>
             )}
+            {bookmark.type === "note" && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium leading-none flex items-center gap-0.5">
+                <Tag className="h-2.5 w-2.5" />
+                {getTypeLabel("note")}
+              </span>
+            )}
           </div>
           <div className="flex flex-wrap gap-1 mb-1">
             {bookmarkCategories.map((cat) => (
@@ -238,7 +244,7 @@ export function BookmarkCard({
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-        ) : (
+        ) : bookmark.url ? (
           <a
             href={bookmark.url}
             target="_blank"
@@ -248,7 +254,7 @@ export function BookmarkCard({
             Visit
             <ExternalLink className="h-3.5 w-3.5" />
           </a>
-        )}
+        ) : null}
       </div>
 
       {settings.showNotes && bookmark.notes && (

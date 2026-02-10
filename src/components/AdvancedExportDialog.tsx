@@ -81,7 +81,7 @@ export function AdvancedExportDialog({
   };
 
   const handleSelectAllTypes = () => {
-    const allTypes = ["website", "app", "url"];
+    const allTypes = ["website", "app", "url", "note"];
     if (selectedTypes.length === allTypes.length) {
       setSelectedTypes([]);
     } else {
@@ -193,14 +193,14 @@ export function AdvancedExportDialog({
                 Item Types
               </Label>
               <Button variant="ghost" size="sm" onClick={handleSelectAllTypes}>
-                {selectedTypes.length === 3 ? "Deselect All" : "Select All"}
+                {selectedTypes.length === 4 ? "Deselect All" : "Select All"}
               </Button>
             </div>
-            <div className="flex gap-2">
-              {(["website", "app", "url"] as const).map((type) => (
+            <div className="flex flex-wrap gap-2">
+              {(["website", "app", "url", "note"] as const).map((type) => (
                 <label
                   key={type}
-                  className="flex items-center gap-2 p-2 rounded-lg border border-border hover:bg-muted/50 cursor-pointer flex-1"
+                  className="flex items-center gap-2 p-2 rounded-lg border border-border hover:bg-muted/50 cursor-pointer"
                 >
                   <Checkbox
                     checked={selectedTypes.includes(type)}

@@ -4,7 +4,7 @@ import { ItemTag, STOCK_TAGS } from "@/types/tags";
 import { getTypeLabel } from "@/utils/typeLabels";
 
 export type SortOption = "name" | "rating" | "recent" | "favorite";
-export type TypeFilter = "all" | "website" | "app" | "url";
+export type TypeFilter = "all" | "website" | "app" | "url" | "note";
 
 interface FilterSortOptions {
   bookmarks: Bookmark[];

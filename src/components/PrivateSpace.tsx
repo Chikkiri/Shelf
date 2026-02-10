@@ -252,46 +252,19 @@ export function PrivateSpace({
         {/* Type filter - Top Bar */}
         {!showFavorites && (
           <div className="flex justify-center gap-8 mb-6">
-            <button
-              onClick={() => setSelectedType("all")}
-              className={`text-sm font-medium transition-colors ${
-                selectedType === "all"
-                  ? "private-space-text-accent"
-                  : "private-space-muted hover:private-space-text"
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setSelectedType("website")}
-              className={`text-sm font-medium transition-colors ${
-                selectedType === "website"
-                  ? "private-space-text-accent"
-                  : "private-space-muted hover:private-space-text"
-              }`}
-            >
-              {getTypeLabel("website")}
-            </button>
-            <button
-              onClick={() => setSelectedType("app")}
-              className={`text-sm font-medium transition-colors ${
-                selectedType === "app"
-                  ? "private-space-text-accent"
-                  : "private-space-muted hover:private-space-text"
-              }`}
-            >
-              {getTypeLabel("app")}
-            </button>
-            <button
-              onClick={() => setSelectedType("url")}
-              className={`text-sm font-medium transition-colors ${
-                selectedType === "url"
-                  ? "private-space-text-accent"
-                  : "private-space-muted hover:private-space-text"
-              }`}
-            >
-              {getTypeLabel("url")}
-            </button>
+            {(["all", "website", "app", "url", "note"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setSelectedType(t)}
+                className={`text-sm font-medium transition-colors ${
+                  selectedType === t
+                    ? "private-space-text-accent"
+                    : "private-space-muted hover:private-space-text"
+                }`}
+              >
+                {t === "all" ? "All" : getTypeLabel(t)}
+              </button>
+            ))}
           </div>
         )}
 

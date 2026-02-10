@@ -451,46 +451,19 @@ const Index = () => {
         {/* Type filter - Top Bar */}
         {!showFavorites && (
           <div className="flex justify-center gap-8 mb-6">
-            <button
-              onClick={() => setSelectedType("all")}
-              className={`text-sm font-medium transition-colors ${
-                selectedType === "all"
-                  ? "text-accent-custom"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setSelectedType("website")}
-              className={`text-sm font-medium transition-colors ${
-                selectedType === "website"
-                  ? "text-accent-custom"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {getTypeLabel("website")}
-            </button>
-            <button
-              onClick={() => setSelectedType("app")}
-              className={`text-sm font-medium transition-colors ${
-                selectedType === "app"
-                  ? "text-accent-custom"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {getTypeLabel("app")}
-            </button>
-            <button
-              onClick={() => setSelectedType("url")}
-              className={`text-sm font-medium transition-colors ${
-                selectedType === "url"
-                  ? "text-accent-custom"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {getTypeLabel("url")}
-            </button>
+            {(["all", "website", "app", "url", "note"] as const).map((t) => (
+              <button
+                key={t}
+                onClick={() => setSelectedType(t)}
+                className={`text-sm font-medium transition-colors ${
+                  selectedType === t
+                    ? "text-accent-custom"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t === "all" ? "All" : getTypeLabel(t)}
+              </button>
+            ))}
           </div>
         )}
 

@@ -1,4 +1,4 @@
-export type BookmarkType = "website" | "app" | "url";
+export type BookmarkType = "website" | "app" | "url" | "note";
 
 export interface Bookmark {
   id: string;
