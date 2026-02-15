@@ -24,6 +24,7 @@ interface BookmarkDialogProps {
   bookmark?: Bookmark | null;
   categories: Category[];
   customTags: ItemTag[];
+  allTags?: ItemTag[];
   onAddCustomTag: (tag: ItemTag) => void;
   onSave: (bookmark: Omit<Bookmark, "id" | "createdAt">) => void;
   isPrivateSpace?: boolean;
@@ -35,6 +36,7 @@ export function BookmarkDialog({
   bookmark,
   categories,
   customTags,
+  allTags,
   onAddCustomTag,
   onSave,
   isPrivateSpace = false,
@@ -201,6 +203,7 @@ export function BookmarkDialog({
             <TagSelector
               selectedTags={tags}
               customTags={customTags}
+              allTags={allTags}
               onTagsChange={setTags}
               onAddCustomTag={onAddCustomTag}
               isPrivateSpace={isPrivateSpace}

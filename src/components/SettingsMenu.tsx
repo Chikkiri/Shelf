@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Settings, Moon, Sun, Monitor, Download, Upload, FolderOpen, LayoutGrid, Type, RotateCcw, Trash2, Grid3X3, Lock, KeyRound, Palette, ArrowUp, ArrowDown, Pencil } from "lucide-react";
+import { Settings, Moon, Sun, Monitor, Download, Upload, FolderOpen, LayoutGrid, Type, RotateCcw, Trash2, Grid3X3, Lock, KeyRound, Palette, ArrowUp, ArrowDown, Pencil, Tag } from "lucide-react";
 import { Bookmark, Category, AppSettings, ThemeMode, CardSize, GridColumns, HoverBoardPosition } from "@/types/bookmark";
+import { ItemTag, STOCK_TAGS } from "@/types/tags";
 import { ColorPalette } from "@/types/palette";
 import { usePrivateSpace } from "@/contexts/PrivateSpaceContext";
 import { usePalette } from "@/hooks/usePalette";
@@ -8,6 +9,7 @@ import { PinDialog } from "@/components/PinDialog";
 import { PaletteSelector } from "@/components/PaletteSelector";
 import { AdvancedExportDialog } from "@/components/AdvancedExportDialog";
 import { ClearCategoryDialog } from "@/components/ClearCategoryDialog";
+import { TagManager } from "@/components/Tagmanager";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
@@ -43,6 +45,8 @@ interface SettingsMenuProps {
   bookmarks: Bookmark[];
   categories: Category[];
   settings: AppSettings;
+  customTags: ItemTag[];
+  editedStockTags: Record<string, Partial<ItemTag>>;
   onImport: (bookmarks: Bookmark[], categories: Category[], persist?: boolean) => void;
   onOpenCategoryManager: () => void;
   onUpdateSetting: <K extends keyof AppSettings>(key: K, value: AppSettings[K]) => void;
@@ -50,6 +54,8 @@ interface SettingsMenuProps {
   onClearData: () => void;
   onClearPrivateData?: () => void;
   onClearCategoryData?: (categoryId: string) => void;
+  onUpdateCustomTags: (tags: ItemTag[]) => void;
+  onUpdateEditedStockTags: (edits: Record<string, Partial<ItemTag>>) => void;
   bookmarkCounts?: Record<string, number>;
 }
 
@@ -57,6 +63,8 @@ export function SettingsMenu({
   bookmarks,
   categories,
   settings,
+  customTags,
+  editedStockTags,
   onImport,
   onOpenCategoryManager,
   onUpdateSetting,
@@ -64,12 +72,15 @@ export function SettingsMenu({
   onClearData,
   onClearPrivateData,
   onClearCategoryData,
+  onUpdateCustomTags,
+  onUpdateEditedStockTags,
   bookmarkCounts = {},
 }: SettingsMenuProps) {
   const [open, setOpen] = useState(false);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
   const [exportDialogOpen, setExportDialogOpen] = useState(false);
   const [clearCategoryDialogOpen, setClearCategoryDialogOpen] = useState(false);
+  const [tagManagerOpen, setTagManagerOpen] = useState(false);
   const { hasPin, changePin, setPin } = usePrivateSpace();
   const {
     selectedPaletteId,
@@ -340,7 +351,23 @@ export function SettingsMenu({
 
             <Separator />
 
-            {/* Backup & Restore */}
+            {/* Tag Management */}
+            <div className="space-y-4">
+              <h3 className="text-sm font-medium flex items-center gap-2">
+                <Tag className="h-4 w-4" />
+                Tags
+              </h3>
+              <Button
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => setTagManagerOpen(true)}
+              >
+                <Pencil className="h-4 w-4 mr-2" />
+                Edit Tags
+              </Button>
+            </div>
+
+            <Separator />
             <div className="space-y-4">
               <h3 className="text-sm font-medium flex items-center gap-2">
                 <Download className="h-4 w-4" />
@@ -522,6 +549,15 @@ export function SettingsMenu({
         categories={categories}
         bookmarkCounts={bookmarkCounts}
         onClearCategory={handleClearCategoryData}
+      />
+
+      <TagManager
+        open={tagManagerOpen}
+        onOpenChange={setTagManagerOpen}
+        customTags={customTags}
+        editedStockTags={editedStockTags}
+        onUpdateCustomTags={onUpdateCustomTags}
+        onUpdateEditedStockTags={onUpdateEditedStockTags}
       />
     </>
   );

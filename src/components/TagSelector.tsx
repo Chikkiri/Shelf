@@ -3,11 +3,11 @@ import { Plus, X, Tag } from "lucide-react";
 import { ItemTag, STOCK_TAGS, getTagIcon } from "@/types/tags";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 
 interface TagSelectorProps {
   selectedTags: string[];
   customTags: ItemTag[];
+  allTags?: ItemTag[]; // Merged stock + custom (with edits applied)
   onTagsChange: (tags: string[]) => void;
   onAddCustomTag: (tag: ItemTag) => void;
   isPrivateSpace?: boolean;
@@ -16,6 +16,7 @@ interface TagSelectorProps {
 export function TagSelector({
   selectedTags,
   customTags,
+  allTags: allTagsProp,
   onTagsChange,
   onAddCustomTag,
   isPrivateSpace = false,
@@ -23,8 +24,8 @@ export function TagSelector({
   const [newTagName, setNewTagName] = useState("");
   const [showAddTag, setShowAddTag] = useState(false);
 
-  // Combine stock tags and custom tags
-  const allTags = [...STOCK_TAGS, ...customTags];
+  // Use provided merged tags or fallback to combining stock + custom
+  const allTags = allTagsProp || [...STOCK_TAGS, ...customTags];
 
   const handleToggleTag = (tagId: string) => {
     if (selectedTags.includes(tagId)) {
@@ -37,17 +38,14 @@ export function TagSelector({
   const handleAddCustomTag = () => {
     if (!newTagName.trim()) return;
     
-    // Check if tag already exists
     const existingTag = allTags.find(
       (t) => t.name.toLowerCase() === newTagName.trim().toLowerCase()
     );
     if (existingTag) {
-      // Just select the existing tag
       if (!selectedTags.includes(existingTag.id)) {
         onTagsChange([...selectedTags, existingTag.id]);
       }
     } else {
-      // Create new custom tag
       const newTag: ItemTag = {
         id: `custom-${Date.now()}`,
         name: newTagName.trim(),
@@ -156,11 +154,12 @@ export function TagSelector({
 interface TagDisplayProps {
   tagIds: string[];
   customTags: ItemTag[];
+  allTags?: ItemTag[];
   highlightText?: string;
 }
 
-export function TagDisplay({ tagIds, customTags, highlightText }: TagDisplayProps) {
-  const allTags = [...STOCK_TAGS, ...customTags];
+export function TagDisplay({ tagIds, customTags, allTags: allTagsProp, highlightText }: TagDisplayProps) {
+  const allTags = allTagsProp || [...STOCK_TAGS, ...customTags];
   
   if (!tagIds || tagIds.length === 0) return null;
 
@@ -203,7 +202,7 @@ export function HighlightedText({ text, highlight }: { text: string; highlight?:
     <span>
       {parts.map((part, i) => 
         regex.test(part) ? (
-          <mark key={i} className="bg-palette-secondary/50 text-foreground rounded px-0.5">
+          <mark key={i} className="bg-muted text-foreground rounded px-0.5 border border-border/60">
             {part}
           </mark>
         ) : (

@@ -30,6 +30,7 @@ interface BookmarkCardProps {
   bookmark: Bookmark;
   categories: Category[];
   customTags?: ItemTag[];
+  allTags?: ItemTag[];
   settings: AppSettings;
   onEdit: (bookmark: Bookmark) => void;
   onDelete: (id: string) => void;
@@ -41,6 +42,7 @@ export function BookmarkCard({
   bookmark, 
   categories,
   customTags = [],
+  allTags,
   settings,
   onEdit, 
   onDelete,
@@ -121,12 +123,7 @@ export function BookmarkCard({
                 {getTypeLabel("url")}
               </span>
             )}
-            {bookmark.type === "note" && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground font-medium leading-none flex items-center gap-0.5">
-                <Tag className="h-2.5 w-2.5" />
-                {getTypeLabel("note")}
-              </span>
-            )}
+            {/* Note type badge removed per request */}
           </div>
           <div className="flex flex-wrap gap-1 mb-1">
             {bookmarkCategories.map((cat) => (
@@ -138,6 +135,7 @@ export function BookmarkCard({
             <TagDisplay 
               tagIds={bookmark.tags} 
               customTags={customTags}
+              allTags={allTags}
               highlightText={searchHighlight}
             />
           )}
@@ -205,7 +203,7 @@ export function BookmarkCard({
       )}
 
       <div className="flex items-center justify-between mt-auto pt-3 border-t border-border/30">
-        <RatingDisplay rating={bookmark.rating} size="sm" />
+        <RatingDisplay rating={bookmark.rating} size="sm" isFavorite={bookmark.favorite} />
         
         {showDropdown ? (
           <DropdownMenu>

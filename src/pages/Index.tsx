@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { ArrowUpDown, Layers, Bookmark as BookmarkIcon, MoreHorizontal } from "lucide-react";
 import { Bookmark, Category, DEFAULT_SETTINGS } from "@/types/bookmark";
-import { ItemTag } from "@/types/tags";
+import { ItemTag, STOCK_TAGS } from "@/types/tags";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useAppSettings } from "@/hooks/useAppSettings";
 import { usePalette } from "@/hooks/usePalette";
@@ -37,11 +37,21 @@ const Index = () => {
   const [bookmarks, setBookmarks] = useLocalStorage<Bookmark[]>("bookmarks", []);
   const [categories, setCategories] = useLocalStorage<Category[]>("categories", DEFAULT_CATEGORIES);
   const [customTags, setCustomTags] = useLocalStorage<ItemTag[]>("customTags", []);
+  const [editedStockTags, setEditedStockTags] = useLocalStorage<Record<string, Partial<ItemTag>>>("editedStockTags", {});
   const { settings, updateSetting, resetSettings } = useAppSettings();
   const { isUnlocked, hasPin, unlock, lock, setPin } = usePrivateSpace();
   
   // Initialize palette system
   usePalette();
+
+  // Merge stock tags with user edits
+  const mergedTags = useMemo(() => {
+    const merged = STOCK_TAGS.map((tag) => ({
+      ...tag,
+      ...editedStockTags[tag.id],
+    }));
+    return [...merged, ...customTags];
+  }, [customTags, editedStockTags]);
   
   const [search, setSearch] = useState("");
   const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
@@ -189,10 +199,38 @@ const Index = () => {
 
   const handleImportData = (importedBookmarks: Bookmark[], importedCategories: Category[], persist?: boolean) => {
     if (persist) {
-      // Merge with existing - avoid duplicates by ID
-      const existingIds = new Set(bookmarks.map(b => b.id));
-      const newBookmarks = importedBookmarks.filter(b => !existingIds.has(b.id));
-      setBookmarks((prev) => [...prev, ...newBookmarks]);
+      // Merge with existing - handle duplicates by URL or name
+      const updatedBookmarks = [...bookmarks];
+      let addedCount = 0;
+      let replacedCount = 0;
+      
+      for (const imported of importedBookmarks) {
+        const existingIdx = updatedBookmarks.findIndex(
+          (b) => (b.url && imported.url && b.url === imported.url) || b.name === imported.name
+        );
+        
+        if (existingIdx >= 0) {
+          // Replace existing with imported data but keep existing ID
+          updatedBookmarks[existingIdx] = {
+            ...imported,
+            id: updatedBookmarks[existingIdx].id,
+            createdAt: updatedBookmarks[existingIdx].createdAt,
+          };
+          replacedCount++;
+        } else {
+          // Add with "copy" suffix if name exists
+          const nameExists = updatedBookmarks.some(
+            (b) => b.name.toLowerCase() === imported.name.toLowerCase()
+          );
+          if (nameExists) {
+            imported.name = `${imported.name} copy`;
+          }
+          updatedBookmarks.push(imported);
+          addedCount++;
+        }
+      }
+      
+      setBookmarks(updatedBookmarks);
       
       const existingCatIds = new Set(categories.map(c => c.id));
       const newCategories = importedCategories.filter(c => !existingCatIds.has(c.id));
@@ -317,6 +355,7 @@ const Index = () => {
           bookmarks={bookmarks}
           categories={categories}
           customTags={customTags}
+          mergedTags={mergedTags}
           settings={settings}
           onEdit={openEditDialog}
           onDelete={handleDeleteBookmark}
@@ -344,6 +383,7 @@ const Index = () => {
           bookmark={editingBookmark}
           categories={categories}
           customTags={customTags}
+          allTags={mergedTags}
           onAddCustomTag={handleAddCustomTag}
           onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
           isPrivateSpace={true}
@@ -385,6 +425,8 @@ const Index = () => {
               bookmarks={bookmarks}
               categories={categories}
               settings={settings}
+              customTags={customTags}
+              editedStockTags={editedStockTags}
               onImport={handleImportData}
               onOpenCategoryManager={() => setCategoryManagerOpen(true)}
               onUpdateSetting={updateSetting}
@@ -392,6 +434,8 @@ const Index = () => {
               onClearData={handleClearData}
               onClearPrivateData={handleClearPrivateData}
               onClearCategoryData={handleClearCategoryData}
+              onUpdateCustomTags={setCustomTags}
+              onUpdateEditedStockTags={setEditedStockTags}
               bookmarkCounts={bookmarkCounts}
             />
           </div>
@@ -409,6 +453,7 @@ const Index = () => {
               filters={filters}
               onFiltersChange={setFilters}
               customTags={customTags}
+              allTags={mergedTags}
             />
           </div>
           <DropdownMenu>
@@ -501,6 +546,7 @@ const Index = () => {
                 bookmark={bookmark}
                 categories={categories}
                 customTags={customTags}
+                allTags={mergedTags}
                 settings={settings}
                 onEdit={openEditDialog}
                 onDelete={handleDeleteBookmark}
@@ -527,6 +573,7 @@ const Index = () => {
         bookmark={editingBookmark}
         categories={categories}
         customTags={customTags}
+        allTags={mergedTags}
         onAddCustomTag={handleAddCustomTag}
         onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
       />

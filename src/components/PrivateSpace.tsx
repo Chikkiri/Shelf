@@ -21,6 +21,7 @@ interface PrivateSpaceProps {
   bookmarks: Bookmark[];
   categories: Category[];
   customTags: ItemTag[];
+  mergedTags?: ItemTag[];
   settings: AppSettings;
   onEdit: (bookmark: Bookmark) => void;
   onDelete: (id: string) => void;
@@ -36,6 +37,7 @@ export function PrivateSpace({
   bookmarks,
   categories,
   customTags,
+  mergedTags,
   settings,
   onEdit,
   onDelete,
@@ -208,6 +210,7 @@ export function PrivateSpace({
               filters={filters}
               onFiltersChange={setFilters}
               customTags={customTags}
+              allTags={mergedTags}
               isPrivateSpace={true}
             />
           </div>
@@ -303,6 +306,7 @@ export function PrivateSpace({
                 bookmark={bookmark}
                 categories={categories}
                 customTags={customTags}
+                allTags={mergedTags}
                 settings={settings}
                 onEdit={onEdit}
                 onDelete={onDelete}

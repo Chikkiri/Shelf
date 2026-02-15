@@ -27,6 +27,7 @@ interface SearchFilterBarProps {
   filters: SearchFilters;
   onFiltersChange: (filters: SearchFilters) => void;
   customTags: ItemTag[];
+  allTags?: ItemTag[];
   isPrivateSpace?: boolean;
 }
 
@@ -44,11 +45,12 @@ export function SearchFilterBar({
   filters,
   onFiltersChange,
   customTags,
+  allTags: allTagsProp,
   isPrivateSpace = false,
 }: SearchFilterBarProps) {
   const [isOpen, setIsOpen] = useState(false);
   
-  const allTags = [...STOCK_TAGS, ...customTags];
+  const allTags = allTagsProp || [...STOCK_TAGS, ...customTags];
   const activeFilterCount = 
     filters.tags.length + 
     (filters.minRating > 0 ? 1 : 0) + 
