@@ -16,6 +16,9 @@ export interface Bookmark {
   favorite?: boolean;
   private?: boolean; // Private Space item
   tags?: string[]; // Tag IDs
+  content?: string; // Note text content
+  price?: string; // Price (e.g., "$10/m")
+  alternates?: string[]; // IDs of alternate bookmark items
 }
 
 export interface Category {

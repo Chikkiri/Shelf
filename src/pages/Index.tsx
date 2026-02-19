@@ -384,6 +384,7 @@ const Index = () => {
           categories={categories}
           customTags={customTags}
           allTags={mergedTags}
+          allBookmarks={bookmarks}
           onAddCustomTag={handleAddCustomTag}
           onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
           isPrivateSpace={true}
@@ -547,6 +548,7 @@ const Index = () => {
                 categories={categories}
                 customTags={customTags}
                 allTags={mergedTags}
+                allBookmarks={bookmarks}
                 settings={settings}
                 onEdit={openEditDialog}
                 onDelete={handleDeleteBookmark}
@@ -574,6 +576,7 @@ const Index = () => {
         categories={categories}
         customTags={customTags}
         allTags={mergedTags}
+        allBookmarks={bookmarks}
         onAddCustomTag={handleAddCustomTag}
         onSave={editingBookmark ? handleEditBookmark : handleAddBookmark}
       />

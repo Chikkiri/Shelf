@@ -307,6 +307,7 @@ export function PrivateSpace({
                 categories={categories}
                 customTags={customTags}
                 allTags={mergedTags}
+                allBookmarks={bookmarks.filter((b) => b.private)}
                 settings={settings}
                 onEdit={onEdit}
                 onDelete={onDelete}

@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -25,6 +26,7 @@ interface BookmarkDialogProps {
   categories: Category[];
   customTags: ItemTag[];
   allTags?: ItemTag[];
+  allBookmarks?: Bookmark[];
   onAddCustomTag: (tag: ItemTag) => void;
   onSave: (bookmark: Omit<Bookmark, "id" | "createdAt">) => void;
   isPrivateSpace?: boolean;
@@ -37,6 +39,7 @@ export function BookmarkDialog({
   categories,
   customTags,
   allTags,
+  allBookmarks = [],
   onAddCustomTag,
   onSave,
   isPrivateSpace = false,
@@ -52,12 +55,14 @@ export function BookmarkDialog({
   const [favorite, setFavorite] = useState(false);
   const [isPrivate, setIsPrivate] = useState(false);
   const [tags, setTags] = useState<string[]>([]);
+  const [content, setContent] = useState("");
+  const [price, setPrice] = useState("");
+  const [alternates, setAlternates] = useState<string[]>([]);
 
   useEffect(() => {
     if (bookmark) {
       setName(bookmark.name);
       setUrl(bookmark.url);
-      // Handle both old single categoryId and new categoryIds array
       setCategoryIds(bookmark.categoryIds || [bookmark.categoryId]);
       setDescription(bookmark.description);
       setRating(bookmark.rating);
@@ -67,6 +72,9 @@ export function BookmarkDialog({
       setFavorite(bookmark.favorite || false);
       setIsPrivate(bookmark.private || false);
       setTags(bookmark.tags || []);
+      setContent(bookmark.content || "");
+      setPrice(bookmark.price || "");
+      setAlternates(bookmark.alternates || []);
     } else {
       setName("");
       setUrl("");
@@ -79,6 +87,9 @@ export function BookmarkDialog({
       setFavorite(false);
       setIsPrivate(false);
       setTags([]);
+      setContent("");
+      setPrice("");
+      setAlternates([]);
     }
   }, [bookmark, categories, open]);
 
@@ -94,6 +105,14 @@ export function BookmarkDialog({
     setType(selectedType);
   };
 
+  const handleAlternateToggle = (bookmarkId: string, checked: boolean) => {
+    if (checked) {
+      setAlternates((prev) => [...prev, bookmarkId]);
+    } else {
+      setAlternates((prev) => prev.filter((id) => id !== bookmarkId));
+    }
+  };
+
   const isNote = type === "note";
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -104,7 +123,7 @@ export function BookmarkDialog({
     onSave({
       name: name.trim(),
       url: url.trim(),
-      categoryId: categoryIds[0], // Keep for backward compatibility
+      categoryId: categoryIds[0],
       categoryIds,
       description: description.trim(),
       rating,
@@ -114,21 +133,57 @@ export function BookmarkDialog({
       favorite,
       private: isPrivate,
       tags,
+      content: content.trim(),
+      price: price.trim(),
+      alternates,
     });
     onOpenChange(false);
   };
 
+  // Available bookmarks for alternates (exclude self)
+  const availableAlternates = allBookmarks.filter(
+    (b) => b.id !== bookmark?.id && !b.private === !isPrivate
+  );
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {bookmark ? "Edit Item" : "Add Item"}
           </DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {/* Type selector */}
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Type</Label>
+            <div className="flex flex-wrap gap-2">
+              {BOOKMARK_TYPES.map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => handleTypeToggle(t)}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    type === t
+                      ? isPrivateSpace
+                        ? "private-space-chip-active"
+                        : "bg-palette-primary text-white"
+                      : isPrivateSpace
+                        ? "private-space-chip"
+                        : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                  }`}
+                >
+                  {getTypeLabelSingular(t)}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Name */}
+          <div className="space-y-1.5">
+            <Label htmlFor="name" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Name</Label>
             <Input
               id="name"
               value={name}
@@ -138,30 +193,24 @@ export function BookmarkDialog({
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Type</Label>
-            <div className="flex flex-wrap gap-3 p-2 border rounded-lg bg-background">
-              {BOOKMARK_TYPES.map((t) => (
-                <div key={t} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`type-${t}`}
-                    checked={type === t}
-                    onCheckedChange={() => handleTypeToggle(t)}
-                  />
-                  <label
-                    htmlFor={`type-${t}`}
-                    className="text-sm font-medium leading-none cursor-pointer"
-                  >
-                    {getTypeLabelSingular(t)}
-                  </label>
-                </div>
-              ))}
+          {/* Note content - only for Note type */}
+          {isNote && (
+            <div className="space-y-1.5">
+              <Label htmlFor="content" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Content</Label>
+              <Textarea
+                id="content"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="Write your note here..."
+                rows={4}
+              />
             </div>
-          </div>
+          )}
 
+          {/* URL - hidden for Note type */}
           {!isNote && (
-            <div className="space-y-2">
-              <Label htmlFor="url">URL</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="url" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">URL</Label>
               <Input
                 id="url"
                 type="url"
@@ -173,45 +222,50 @@ export function BookmarkDialog({
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label>Category</Label>
-            <div className="grid grid-cols-2 gap-2 max-h-32 overflow-y-auto p-2 border rounded-lg">
-              {categories.map((cat) => (
-                <div key={cat.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={`cat-${cat.id}`}
-                    checked={categoryIds.includes(cat.id)}
-                    onCheckedChange={(checked) => handleCategoryToggle(cat.id, checked as boolean)}
-                  />
-                  <label
-                    htmlFor={`cat-${cat.id}`}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                  >
-                    {cat.name}
-                  </label>
-                </div>
-              ))}
+          {/* Category & Tags row */}
+          <div className="grid grid-cols-1 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Category</Label>
+              <div className="grid grid-cols-2 gap-1.5 max-h-28 overflow-y-auto p-2 border rounded-lg bg-background">
+                {categories.map((cat) => (
+                  <div key={cat.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`cat-${cat.id}`}
+                      checked={categoryIds.includes(cat.id)}
+                      onCheckedChange={(checked) => handleCategoryToggle(cat.id, checked as boolean)}
+                    />
+                    <label
+                      htmlFor={`cat-${cat.id}`}
+                      className="text-xs font-medium leading-none cursor-pointer truncate"
+                    >
+                      {cat.name}
+                    </label>
+                  </div>
+                ))}
+              </div>
+              {categoryIds.length === 0 && (
+                <p className="text-[10px] text-destructive">Select at least one category</p>
+              )}
             </div>
-            {categoryIds.length === 0 && (
-              <p className="text-xs text-destructive">Select at least one category</p>
-            )}
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Tags</Label>
+              <TagSelector
+                selectedTags={tags}
+                customTags={customTags}
+                allTags={allTags}
+                onTagsChange={setTags}
+                onAddCustomTag={onAddCustomTag}
+                isPrivateSpace={isPrivateSpace}
+              />
+            </div>
           </div>
 
-          {/* Tags */}
-          <div className="space-y-2">
-            <Label>Tags</Label>
-            <TagSelector
-              selectedTags={tags}
-              customTags={customTags}
-              allTags={allTags}
-              onTagsChange={setTags}
-              onAddCustomTag={onAddCustomTag}
-              isPrivateSpace={isPrivateSpace}
-            />
-          </div>
+          <Separator />
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+          {/* Description */}
+          <div className="space-y-1.5">
+            <Label htmlFor="description" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Description</Label>
             <Input
               id="description"
               value={description}
@@ -220,50 +274,79 @@ export function BookmarkDialog({
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Rating</Label>
-            <StarRating rating={rating} onRatingChange={setRating} allowClear />
+          {/* Rating & Price row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Rating</Label>
+              <StarRating rating={rating} onRatingChange={setRating} allowClear />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="price" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Price</Label>
+              <Input
+                id="price"
+                value={price}
+                onChange={(e) => setPrice(e.target.value)}
+                placeholder="e.g., $10/m"
+                className="h-9"
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="notes">Notes (optional)</Label>
+          {/* Notes */}
+          <div className="space-y-1.5">
+            <Label htmlFor="notes" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Notes</Label>
             <Textarea
               id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Any additional notes..."
-              rows={3}
+              rows={2}
             />
           </div>
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="pinned">Pin to top</Label>
-            <Switch
-              id="pinned"
-              checked={pinned}
-              onCheckedChange={setPinned}
-            />
-          </div>
+          {/* Alternates */}
+          {availableAlternates.length > 0 && (
+            <div className="space-y-1.5">
+              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Alternates</Label>
+              <div className="grid grid-cols-2 gap-1.5 max-h-28 overflow-y-auto p-2 border rounded-lg bg-background">
+                {availableAlternates.map((b) => (
+                  <div key={b.id} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`alt-${b.id}`}
+                      checked={alternates.includes(b.id)}
+                      onCheckedChange={(checked) => handleAlternateToggle(b.id, checked as boolean)}
+                    />
+                    <label
+                      htmlFor={`alt-${b.id}`}
+                      className="text-xs font-medium leading-none cursor-pointer truncate"
+                    >
+                      {b.name}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="favorite">Add to Favorites</Label>
-            <Switch
-              id="favorite"
-              checked={favorite}
-              onCheckedChange={setFavorite}
-            />
-          </div>
+          <Separator />
 
-          <div className="flex items-center justify-between">
-            <Label htmlFor="private" className="flex items-center gap-2">
-              Private Item
-              <span className="text-xs text-muted-foreground">(hidden in main list)</span>
-            </Label>
-            <Switch
-              id="private"
-              checked={isPrivate}
-              onCheckedChange={setIsPrivate}
-            />
+          {/* Toggles */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="pinned" className="text-sm">Pin to top</Label>
+              <Switch id="pinned" checked={pinned} onCheckedChange={setPinned} />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="favorite" className="text-sm">Add to Favorites</Label>
+              <Switch id="favorite" checked={favorite} onCheckedChange={setFavorite} />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="private" className="text-sm flex items-center gap-2">
+                Private Item
+                <span className="text-[10px] text-muted-foreground">(hidden in main list)</span>
+              </Label>
+              <Switch id="private" checked={isPrivate} onCheckedChange={setIsPrivate} />
+            </div>
           </div>
 
           <DialogFooter>

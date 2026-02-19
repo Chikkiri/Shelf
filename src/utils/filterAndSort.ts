@@ -46,6 +46,8 @@ export function filterAndSortBookmarks({
       if (b.description?.toLowerCase().includes(query)) return true;
       // Search in notes
       if (b.notes?.toLowerCase().includes(query)) return true;
+      // Search in note content
+      if (b.content?.toLowerCase().includes(query)) return true;
       // Search in type label
       if (getTypeLabel(b.type).toLowerCase().includes(query)) return true;
       // Search in tags
