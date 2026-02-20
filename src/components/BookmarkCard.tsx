@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ExternalLink, Globe, Bookmark as BookmarkIcon, Link, Pencil, Pin, Play, Share2, Tag, Trash2, Copy, ArrowRightLeft, Star, ExternalLink as Visit } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Bookmark, Category, AppSettings } from "@/types/bookmark";
@@ -109,10 +109,17 @@ export function BookmarkCard({
     }
   };
 
-  // Get alternate bookmarks
-  const alternateBookmarks = (bookmark.alternates || [])
-    .map((id) => allBookmarks.find((b) => b.id === id))
-    .filter(Boolean) as Bookmark[];
+  // Get alternate bookmarks (bidirectional: if A lists B, B also shows A)
+  const alternateBookmarks = useMemo(() => {
+    const directAlts = bookmark.alternates || [];
+    const reverseAlts = allBookmarks
+      .filter((b) => b.id !== bookmark.id && (b.alternates || []).includes(bookmark.id))
+      .map((b) => b.id);
+    const allAltIds = Array.from(new Set([...directAlts, ...reverseAlts]));
+    return allAltIds
+      .map((id) => allBookmarks.find((b) => b.id === id))
+      .filter(Boolean) as Bookmark[];
+  }, [bookmark.id, bookmark.alternates, allBookmarks]);
 
   return (
     <div className={`group bg-card rounded-xl ${paddingClasses[settings.cardSize]} elevation-1 hover:elevation-2 transition-all duration-200 border border-border/40 flex flex-col h-full`}>

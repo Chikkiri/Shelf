@@ -57,7 +57,6 @@ export function BookmarkDialog({
   const [tags, setTags] = useState<string[]>([]);
   const [content, setContent] = useState("");
   const [price, setPrice] = useState("");
-  const [alternates, setAlternates] = useState<string[]>([]);
 
   useEffect(() => {
     if (bookmark) {
@@ -74,7 +73,6 @@ export function BookmarkDialog({
       setTags(bookmark.tags || []);
       setContent(bookmark.content || "");
       setPrice(bookmark.price || "");
-      setAlternates(bookmark.alternates || []);
     } else {
       setName("");
       setUrl("");
@@ -89,7 +87,6 @@ export function BookmarkDialog({
       setTags([]);
       setContent("");
       setPrice("");
-      setAlternates([]);
     }
   }, [bookmark, categories, open]);
 
@@ -103,14 +100,6 @@ export function BookmarkDialog({
 
   const handleTypeToggle = (selectedType: BookmarkType) => {
     setType(selectedType);
-  };
-
-  const handleAlternateToggle = (bookmarkId: string, checked: boolean) => {
-    if (checked) {
-      setAlternates((prev) => [...prev, bookmarkId]);
-    } else {
-      setAlternates((prev) => prev.filter((id) => id !== bookmarkId));
-    }
   };
 
   const isNote = type === "note";
@@ -135,15 +124,9 @@ export function BookmarkDialog({
       tags,
       content: content.trim(),
       price: price.trim(),
-      alternates,
     });
     onOpenChange(false);
   };
-
-  // Available bookmarks for alternates (exclude self)
-  const availableAlternates = allBookmarks.filter(
-    (b) => b.id !== bookmark?.id && !b.private === !isPrivate
-  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -304,30 +287,6 @@ export function BookmarkDialog({
             />
           </div>
 
-          {/* Alternates */}
-          {availableAlternates.length > 0 && (
-            <div className="space-y-1.5">
-              <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Alternates</Label>
-              <div className="grid grid-cols-2 gap-1.5 max-h-28 overflow-y-auto p-2 border rounded-lg bg-background">
-                {availableAlternates.map((b) => (
-                  <div key={b.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`alt-${b.id}`}
-                      checked={alternates.includes(b.id)}
-                      onCheckedChange={(checked) => handleAlternateToggle(b.id, checked as boolean)}
-                    />
-                    <label
-                      htmlFor={`alt-${b.id}`}
-                      className="text-xs font-medium leading-none cursor-pointer truncate"
-                    >
-                      {b.name}
-                    </label>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           <Separator />
 
           {/* Toggles */}
@@ -341,10 +300,7 @@ export function BookmarkDialog({
               <Switch id="favorite" checked={favorite} onCheckedChange={setFavorite} />
             </div>
             <div className="flex items-center justify-between">
-              <Label htmlFor="private" className="text-sm flex items-center gap-2">
-                Private Item
-                <span className="text-[10px] text-muted-foreground">(hidden in main list)</span>
-              </Label>
+              <Label htmlFor="private" className="text-sm">Private Item</Label>
               <Switch id="private" checked={isPrivate} onCheckedChange={setIsPrivate} />
             </div>
           </div>

@@ -17,7 +17,7 @@ const Switch = React.forwardRef<
       "data-[state=unchecked]:bg-input",
       neutral
         ? "data-[state=checked]:bg-muted-foreground"
-        : "data-[state=checked]:bg-[var(--accent-hex,hsl(var(--primary)))]",
+        : "data-[state=checked]:bg-[var(--palette-primary,hsl(var(--primary)))]",
       className,
     )}
     {...props}

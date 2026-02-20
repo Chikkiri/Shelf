@@ -128,12 +128,12 @@ export function TagManager({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[85vh] flex flex-col">
+      <DialogContent className="sm:max-w-md max-h-[80vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>Edit Tags</DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 -mx-6 px-6">
+        <ScrollArea className="flex-1 -mx-6 px-6 overflow-y-auto">
           <div className="space-y-3 pb-4">
             {allTags.map((tag) => {
               const IconComponent = getTagIcon(tag.icon);
